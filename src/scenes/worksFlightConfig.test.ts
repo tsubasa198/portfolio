@@ -14,28 +14,40 @@ import {
 } from "./worksFlightConfig";
 
 describe("制作実績へ飛ぶスクロール区間", () => {
+  // 数値を直接書くと尺の調整のたびに落ちるので、境界は設定値から引く
+  const C = WORKS_FLIGHT_CONFIG;
+  const justBefore = (value: number) => value - 0.0001;
+
   it.each([
     [0, "system"],
-    [0.1499, "system"],
-    [0.15, "takeoff"],
-    [0.2799, "takeoff"],
-    [0.28, "flight"],
-    [0.6799, "flight"],
-    [0.68, "landing"],
-    [0.8999, "landing"],
-    [0.9, "works"],
+    [justBefore(C.systemHoldEnd), "system"],
+    [C.systemHoldEnd, "takeoff"],
+    [justBefore(C.prepareEnd), "takeoff"],
+    [C.prepareEnd, "flight"],
+    [justBefore(C.centralFlightEnd), "flight"],
+    [C.centralFlightEnd, "landing"],
+    [justBefore(C.landingMotionEnd), "landing"],
+    [C.landingMotionEnd, "works"],
     [1, "works"],
   ] as const)("進捗%fは%s区間になる", (progress, expected) => {
     expect(worksFlightPhaseAt(progress)).toBe(expected);
   });
 
   it("システム保持後は、透過マスコットが飛行状態のまま中央へ移る", () => {
-    expect(WORKS_FLIGHT_CONFIG.systemHoldEnd).toBe(0.15);
-    expect(WORKS_FLIGHT_CONFIG.takeoffMotionStart).toBe(0.15);
-    expect(WORKS_FLIGHT_CONFIG.takeoffMotionEnd).toBe(0.28);
-    expect(WORKS_FLIGHT_CONFIG.centralFlightEnd).toBe(0.68);
-    expect(WORKS_FLIGHT_CONFIG.landingMotionEnd).toBe(0.9);
-    expect(WORKS_FLIGHT_CONFIG.mascotSwapEnd).toBeLessThanOrEqual(0.17);
+    // 飛び立ちは保持の終わりと同時に始め、着地まで途切れさせない
+    expect(WORKS_FLIGHT_CONFIG.takeoffMotionStart).toBe(
+      WORKS_FLIGHT_CONFIG.systemHoldEnd,
+    );
+    expect(WORKS_FLIGHT_CONFIG.takeoffMotionEnd).toBe(
+      WORKS_FLIGHT_CONFIG.prepareEnd,
+    );
+    expect(WORKS_FLIGHT_CONFIG.landingMotionStart).toBe(
+      WORKS_FLIGHT_CONFIG.centralFlightEnd,
+    );
+    // 静止マスコットから動画への差し替えは保持の直後に済ませる
+    expect(WORKS_FLIGHT_CONFIG.mascotSwapEnd).toBeLessThanOrEqual(
+      WORKS_FLIGHT_CONFIG.systemHoldEnd + 0.02,
+    );
     expect(WORKS_FLIGHT_CONFIG.mobileCentralMascotScale).toBeGreaterThan(1);
     expect(WORKS_FLIGHT_CONFIG.alphaVideoPath).toMatch(/\.webm$/);
   });
@@ -53,25 +65,36 @@ describe("制作実績へ飛ぶスクロール区間", () => {
 describe("透過マスコット動画の時間写像", () => {
   const duration = 20;
 
+  /*
+    尺を調整しても意味が変わらないよう、境界は設定値から引く。
+    確認したいのは「どの進捗が動画のどの節目に対応するか」であって、
+    個別の数値そのものではない。
+  */
+  const C = WORKS_FLIGHT_CONFIG;
+  const midpoint = (a: number, b: number) => (a + b) / 2;
+
   it.each([
-    [0, 1.75],
-    [0.15, 1.75],
-    [0.215, 3.275],
-    [0.28, 4.8],
-    [0.48, 7.4],
-    [0.68, 10],
-    [0.79, 13.375],
-    [0.9, 16.75],
-    [1, 16.75],
+    // 飛び立ち前は動画の見せ始めで止める
+    [0, C.visibleVideoStartSeconds],
+    [C.videoStart, C.visibleVideoStartSeconds],
+    // 飛び立ち区間の中間は、見せ始めと接続点の中間へ
+    [
+      midpoint(C.takeoffMotionStart, C.takeoffMotionEnd),
+      midpoint(C.visibleVideoStartSeconds, C.takeoffConnectionSeconds),
+    ],
+    // 飛び立ち終わりで接続点に着く
+    [C.takeoffMotionEnd, C.takeoffConnectionSeconds],
+    // 中央飛行の終わりで2本目の開始点へ
+    [C.centralFlightEnd, C.secondVideoStartSeconds],
+    // 着地で見せ終わりに着き、以降は動かさない
+    [C.videoEnd, C.visibleVideoEndSeconds],
+    [1, C.visibleVideoEndSeconds],
   ])("進捗%fを%f秒へ写像する", (progress, expected) => {
-    expect(worksFlightVideoTimeAt(progress, duration)).toBeCloseTo(
-      expected,
-      6,
-    );
+    expect(worksFlightVideoTimeAt(progress, duration)).toBeCloseTo(expected, 6);
   });
 
   it("逆スクロールでも単調に動画時間が戻る", () => {
-    const times = [1, 0.9, 0.76, 0.5, 0.28, 0.15, 0].map((progress) =>
+    const times = [1, C.videoEnd, 0.7, 0.5, C.prepareEnd, C.videoStart, 0].map((progress) =>
       worksFlightVideoTimeAt(progress, duration),
     );
     expect(times).toEqual([...times].sort((a, b) => b - a));
@@ -205,24 +228,47 @@ describe("最終4枚の制作実績カード", () => {
   });
 
   it("着地後は制作実績1の2枚から制作実績2の2枚へ連続して切り替わる", () => {
-    expect(WORKS_FLIGHT_CONFIG.worksGroupingStart).toBeLessThanOrEqual(0.72);
-    expect(WORKS_FLIGHT_CONFIG.worksGroupingEnd).toBeLessThanOrEqual(0.84);
-    expect(WORKS_FLIGHT_CONFIG.worksOneStart).toBeGreaterThanOrEqual(0.9);
+    // グルーピングは着地までに終える
+    expect(WORKS_FLIGHT_CONFIG.worksGroupingEnd).toBeLessThanOrEqual(
+      WORKS_FLIGHT_CONFIG.landingMotionEnd,
+    );
+    expect(WORKS_FLIGHT_CONFIG.worksGroupingStart).toBeLessThan(
+      WORKS_FLIGHT_CONFIG.worksGroupingEnd,
+    );
+    // 実績1は着地と同時に出す
+    expect(WORKS_FLIGHT_CONFIG.worksOneStart).toBeGreaterThanOrEqual(
+      WORKS_FLIGHT_CONFIG.worksGroupingEnd,
+    );
+    // 実績1を読む時間を確保してから実績2へ渡す
+    expect(
+      WORKS_FLIGHT_CONFIG.worksTwoTransitionStart -
+        WORKS_FLIGHT_CONFIG.worksOneStart,
+    ).toBeGreaterThanOrEqual(0.08);
+    // 実績2にも余韻を残し、次のセクションへ直結させない
+    expect(1 - WORKS_FLIGHT_CONFIG.worksTwoTransitionEnd).toBeGreaterThanOrEqual(
+      0.06,
+    );
     expect(WORKS_FLIGHT_CONFIG.worksTwoTransitionStart).toBeGreaterThan(
       WORKS_FLIGHT_CONFIG.worksOneStart,
     );
     expect(WORKS_FLIGHT_CONFIG.worksTwoTransitionEnd).toBeLessThanOrEqual(1);
 
-    expect(worksPageStateAt(0.92)).toMatchObject({
+    // 実績1を読ませる区間の途中では、実績1だけが見えている
+    const readingOne =
+      (WORKS_FLIGHT_CONFIG.worksOneStart +
+        WORKS_FLIGHT_CONFIG.worksTwoTransitionStart) /
+      2;
+    expect(worksPageStateAt(readingOne)).toMatchObject({
       flightOverviewOpacity: 0,
       worksOneOpacity: 1,
       worksTwoOpacity: 0,
     });
+    // 末尾では実績2へ入れ替わり切っている
     expect(worksPageStateAt(1)).toMatchObject({
       worksOneOpacity: 0,
       worksTwoOpacity: 1,
       worksTwoLift: 1,
     });
-    expect(worksPageStateAt(0.92)).toEqual(worksPageStateAt(0.92));
+    expect(worksPageStateAt(readingOne)).toEqual(worksPageStateAt(readingOne));
   });
 });

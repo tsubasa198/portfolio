@@ -51,8 +51,8 @@
   --intro-mobile-length: 700svh;
   --intro-length: var(--intro-desktop-length);
   --studio-length: 900vh;
-  --works-flight-desktop-length: 780vh;
-  --works-flight-mobile-length: 600svh;
+  --works-flight-desktop-length: 850vh;
+  --works-flight-mobile-length: 655svh;
   --works-flight-length: var(--works-flight-desktop-length);
   --guide-mascot-width: clamp(90px, 8vw, 140px);
 }
@@ -425,44 +425,99 @@ main {
 }
 
 /* ---------- スクロールヒント ---------- */
+/*
+  スクロール案内。
+  文字だけでは何をすればよいか伝わりにくいので、指が下へなぞる動きを添える。
+  暗い背景でも沈まないよう、輪郭と発光を控えめに持たせる。
+*/
 .scroll-hint {
   position: absolute;
-  bottom: 28px;
+  bottom: 26px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 10px;
-  letter-spacing: 0.5em;
-  color: var(--color-text-dim);
+  z-index: 10;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  z-index: 10;
   transition: opacity 0.5s;
 }
 
-.scroll-hint__bar {
-  width: 1px;
-  height: 44px;
-  background: linear-gradient(to bottom, var(--color-accent-gold), transparent);
-  animation: hint-drop 1.6s ease-in-out infinite;
+/* 指がなぞる範囲を示す枠。マウスのホイール部にも見えるサイズにする。 */
+.scroll-hint__gesture {
+  position: relative;
+  display: block;
+  width: 30px;
+  height: 48px;
+  border: 1.5px solid rgba(255, 205, 150, 0.72);
+  border-radius: 999px;
+  background: rgba(10, 7, 5, 0.46);
+  box-shadow:
+    0 0 22px rgba(255, 122, 26, 0.24),
+    0 2px 14px rgba(0, 0, 0, 0.45),
+    inset 0 0 12px rgba(255, 138, 40, 0.12);
+  backdrop-filter: blur(4px);
 }
 
-@keyframes hint-drop {
+/* 枠の中を上下する軌跡。指の通り道を薄く示す。 */
+.scroll-hint__track {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  width: 1.5px;
+  height: 24px;
+  translate: -50% 0;
+  border-radius: 1px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 194, 103, 0.42),
+    transparent
+  );
+}
+
+/* なぞる指に見立てた光点。下へ送り、戻るときは消しておく。 */
+.scroll-hint__finger {
+  position: absolute;
+  left: 50%;
+  top: 11px;
+  width: 6px;
+  height: 6px;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: var(--color-accent-gold);
+  box-shadow: 0 0 10px rgba(255, 194, 103, 0.85);
+  animation: scroll-hint-swipe 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.scroll-hint__label {
+  color: rgba(255, 232, 208, 0.88);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.42em;
+  /* letter-spacingの分だけ右に寄るのを戻して中央に見せる */
+  text-indent: 0.42em;
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.7);
+}
+
+@keyframes scroll-hint-swipe {
   0% {
-    transform: scaleY(0);
-    transform-origin: top;
+    transform: translateY(0);
+    opacity: 0;
   }
-  50% {
-    transform: scaleY(1);
-    transform-origin: top;
+  15% {
+    opacity: 1;
   }
-  51% {
-    transform-origin: bottom;
+  60% {
+    transform: translateY(22px);
+    opacity: 1;
+  }
+  85% {
+    transform: translateY(26px);
+    opacity: 0;
   }
   100% {
-    transform: scaleY(0);
-    transform-origin: bottom;
+    transform: translateY(0);
+    opacity: 0;
   }
 }
 

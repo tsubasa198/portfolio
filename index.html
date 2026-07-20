@@ -54,7 +54,7 @@
       }
 
       .scene-works-flight {
-        height: 780vh;
+        height: 850vh;
       }
 
       .works-flight-stage {
@@ -70,7 +70,7 @@
         }
 
         .scene-works-flight {
-          height: 600svh;
+          height: 655svh;
         }
       }
 
@@ -288,9 +288,17 @@
             <h2 class="portal-next-preview__title">AI導入の、裏側へ。</h2>
           </div>
 
-          <p class="scroll-hint js-scroll-hint">
-            SCROLL<span class="scroll-hint__bar"></span>
-          </p>
+          <!--
+            スクロールを促す案内。指で下へなぞる動きを見せて、
+            文字を読まなくても操作が伝わるようにする。
+          -->
+          <div class="scroll-hint js-scroll-hint" aria-hidden="true">
+            <span class="scroll-hint__gesture">
+              <span class="scroll-hint__track"></span>
+              <span class="scroll-hint__finger"></span>
+            </span>
+            <span class="scroll-hint__label">SCROLL</span>
+          </div>
         </div>
       </section>
 
