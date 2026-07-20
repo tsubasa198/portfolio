@@ -1,0 +1,8 @@
+ ▐▛███▜▌   Claude Code v2.1.215
+▝▜█████▛▘  Opus 4.8 (1M context) · Claude Max
+  ▘▘ ▝▝    ~/Desktop/ClaudeCode_pj/port
+
+ ⚠ Your login expires in 2 days · run /login to renew
+
+❯ /export                                                                       
+  ⎿  Conversation copied to clipboard
