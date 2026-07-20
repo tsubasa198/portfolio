@@ -4,11 +4,8 @@
  */
 
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import {
-  disclosureState,
-  sceneScrollTop,
-} from "../core/navigationState";
-import { navigationSceneId, sceneLabel } from "../core/sceneConfig";
+import { disclosureState, sceneScrollTop } from "../core/navigationState";
+import { navigationSceneId } from "../core/sceneConfig";
 import { normalizeSplitText, splitChars } from "../core/splitText";
 
 const REVEAL_THRESHOLD = 0.25;
@@ -152,8 +149,11 @@ export interface IndicatorController {
   setScene(id: string): void;
 }
 
+/**
+ * 現在のシーンをヘッダーナビへ反映する。
+ * 右端に出していた補助ラベルは廃止したので、ここではナビだけを更新する。
+ */
 export function initIndicator(): IndicatorController {
-  const label = document.querySelector<HTMLElement>(".js-indicator-label");
   const navPills = [
     ...document.querySelectorAll<HTMLElement>("[data-scene-link]"),
   ];
@@ -162,7 +162,6 @@ export function initIndicator(): IndicatorController {
     setScene(id: string) {
       if (id === current) return;
       current = id;
-      if (label) label.textContent = sceneLabel(id);
       const activeNavigationId = navigationSceneId(id);
       for (const pill of navPills) {
         pill.classList.toggle(

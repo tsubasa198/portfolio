@@ -23,7 +23,6 @@
       }
 
       .site-header,
-      .scene-indicator,
       .progress-bar {
         position: fixed;
       }
@@ -126,7 +125,7 @@
           href="#studio"
           data-scene-progress="0.08"
           data-scene-link="hearing"
-          >ヒアリング</a
+          >プロセス</a
         >
         <a class="nav-pill" href="#works" data-scene-link="works">実績</a>
         <a class="nav-pill" href="#skills" data-scene-link="skills">スキル</a>
@@ -154,18 +153,13 @@
           href="#studio"
           data-scene-progress="0.08"
           data-scene-link="hearing"
-          >ヒアリング</a
+          >プロセス</a
         >
         <a href="#works" data-scene-link="works">実績</a>
         <a href="#skills" data-scene-link="skills">スキル</a>
         <a href="#contact" data-scene-link="contact">連絡</a>
       </nav>
     </header>
-
-    <!-- 右端: 現在シーンのインジケータ -->
-    <aside class="scene-indicator" aria-hidden="true">
-      <span class="scene-indicator__pill js-indicator-label">はじまり</span>
-    </aside>
 
     <!-- 画面下部: 読了進捗バー (ionic踏襲) -->
     <div class="progress-bar" aria-hidden="true">
@@ -275,10 +269,10 @@
           <!-- 01 Hero コピー -->
           <div class="scene-copy js-copy" data-copy="hero">
             <p class="scene-copy__number">01 <span>/ 09</span></p>
-            <p class="scene-copy__eyebrow">AI ENGINEERING</p>
+            <p class="scene-copy__eyebrow">AIエンジニア / FDE</p>
             <h1 class="scene-copy__title js-split">ビジネスに、AIの知能を。</h1>
             <p class="scene-copy__text">
-              AIエンジニア T.KITAOKA。<br />
+              まだ言葉になっていない現場の課題を見つけ出し、<br />
               ヒアリングから設計・構築・運用まで、<br />
               AI導入をワンストップで支援します。
             </p>
@@ -531,7 +525,7 @@
               <p class="scene-copy__number">03 <span>/ 09</span></p>
               <p class="scene-copy__eyebrow">01 — HEARING</p>
               <h2 class="scene-copy__title js-split">
-                まず、現場の声を聞く。
+                現場の課題をヒアリング
               </h2>
               <p class="scene-copy__text">
                 課題は現場にあります。業務フローと痛みを丁寧にヒアリングし、AIで解くべき問題を見極めます。
@@ -545,7 +539,7 @@
             <p class="scene-copy__number">04 <span>/ 09</span></p>
             <p class="scene-copy__eyebrow">02 — REQUIREMENTS</p>
             <h2 class="scene-copy__title js-split">
-              要件定義書に、落とし込む。
+              要件定義に落とし込む
             </h2>
             <p class="scene-copy__text">
               ヒアリング内容を機能要件・非機能要件に整理。ゴールとスコープを明文化し、認識を揃えます。
@@ -559,7 +553,7 @@
             <p class="scene-copy__number">05 <span>/ 09</span></p>
             <p class="scene-copy__eyebrow">03 — BUILD</p>
             <h2 class="scene-copy__title js-split">
-              ワークフローを、構築する。
+              ワークフローを構築する
             </h2>
             <p class="scene-copy__text">
               要件をノードに分解し、LLM・RAG・外部APIを組み合わせた自動化ワークフローとして実装します。
@@ -574,7 +568,7 @@
             <p class="scene-copy__number">06 <span>/ 09</span></p>
             <p class="scene-copy__eyebrow">04 — LAUNCH</p>
             <h2 class="scene-copy__title js-split">
-              システムを構築し、完成
+              システムを構築し完成
             </h2>
             <p class="scene-copy__text">
               納品するのは「動くWebアプリ」。メール取込から会計登録まで、AIが自動で回し続けます。
@@ -752,9 +746,12 @@
         <div class="section__inner">
           <p class="section__number">08 <span>/ 09</span></p>
           <p class="section__eyebrow">ABOUT &amp; PROFILE</p>
-          <h2 class="section__title">プロフィール</h2>
+          <h2 class="section__title">
+            現場の課題をAIで、<br />使われ続ける仕組みに変換する
+          </h2>
           <div class="skills-layout">
             <div class="skills-list">
+              <p class="skills-list__label">使用ツール &amp; スキル</p>
               <div class="skill-row js-reveal">
                 <span>LLMアプリケーション開発</span><i style="--lv: 90%"></i>
               </div>
@@ -773,8 +770,8 @@
             </div>
             <div class="profile js-reveal">
               <div class="profile__avatar" aria-hidden="true"></div>
-              <h3>T.KITAOKA</h3>
-              <p class="profile__role">AI Engineer</p>
+              <h3>北岡 翼</h3>
+              <p class="profile__role">AIエンジニア / FDE</p>
               <p>
                 現場のヒアリングから要件定義、ワークフロー構築、運用改善まで一気通貫で担当。
                 「AIを使うこと」ではなく「業務が楽になること」をゴールに設計します。
@@ -789,13 +786,15 @@
         <div class="section__inner section__inner--center">
           <p class="section__number">09 <span>/ 09</span></p>
           <p class="section__eyebrow">CONTACT</p>
-          <h2 class="section__title">AI導入の相談をする</h2>
+          <h2 class="section__title">
+            その「こうだったらいいのに」を<br />聞かせてください
+          </h2>
           <p class="section__lead">
             「何から始めればいいか分からない」段階からで大丈夫です。<br />
             まずは現状の課題をお聞かせください。
           </p>
           <a class="contact-cta" href="mailto:t.kitaoka@digital-hacks.com"
-            >無料相談してみる →</a
+            >お問い合わせはこちら →</a
           >
         </div>
         <footer class="footer">

@@ -27,7 +27,7 @@ describe("ページ共通UI", () => {
     expect(pageHtml).toMatch(
       /class="site-header__cta" href="#contact">お問い合わせ<\/a>/,
     );
-    expect(pageHtml).toContain("無料相談してみる →");
+    expect(pageHtml).toContain("お問い合わせはこちら →");
   });
 
   it("SVG faviconを明示する", () => {
@@ -263,11 +263,17 @@ describe("Hero・追加動画・ヒアリング統合契約", () => {
       /class="studio-copy-entry js-studio-copy-entry"[\s\S]*?data-copy="hearing"[\s\S]*?data-copy="requirements"[\s\S]*?data-copy="workflow"[\s\S]*?data-copy="build"/,
     );
     expect(mainStyles).toMatch(/\.studio-copy-entry[\s\S]*?z-index:\s*80/);
+    // 右端の補助ナビを廃止したぶん、テキスト側を広げてモックアップを右へ寄せた
     expect(mainStyles).toMatch(
-      /\.scene-studio \.stage[\s\S]*?--studio-split:\s*40vw/,
+      /\.scene-studio \.stage[\s\S]*?--studio-split:\s*43vw/,
     );
     expect(mainStyles).toMatch(
-      /\.macbook[\s\S]*?left:\s*calc\(var\(--studio-split\) \+ 1\.5vw\)[\s\S]*?width:\s*min\(700px, 55\.5vw\)/,
+      /\.macbook[\s\S]*?left:\s*calc\(var\(--studio-split\) \+ 1\.5vw\)/,
+    );
+    // モックアップの右端はヘッダーのパディングと同じラインで止める
+    // (整形でmin()が複数行になることがあるため空白は緩く見る)
+    expect(mainStyles).toMatch(
+      /\.macbook[\s\S]*?width:\s*min\(\s*760px,[\s\S]*?clamp\(\s*16px,\s*3vw,\s*40px\s*\)/,
     );
     expect(mainStyles).toMatch(
       /\.scene-studio \.scene-copy__text[\s\S]*?max-width:\s*500px/,
@@ -283,7 +289,8 @@ describe("Hero・追加動画・ヒアリング統合契約", () => {
   it("4工程共通タイトルを1個だけ持ち、最終見出しを構築・完成へ合わせる", () => {
     expect(pageHtml.match(/AI導入までのフロー/g)).toHaveLength(1);
     expect(pageHtml).toContain("js-studio-flow-title");
-    expect(pageHtml).toContain("システムを構築し、完成");
+    // 見出しから句読点を外し、4工程で表記を揃えている
+    expect(pageHtml).toContain("システムを構築し完成");
     expect(pageHtml).not.toContain("完成したシステムが、動き出す。");
     expect(mainStyles).toMatch(
       /\.studio-flow-title\s*\{[\s\S]*?position:\s*absolute[\s\S]*?z-index:\s*85/,
@@ -545,7 +552,7 @@ describe("制作実績後の通常セクション", () => {
 
   it("プロフィール文言を変更し、短いsticky滞在を背景境界なしで作る", () => {
     expect(pageHtml).toContain("ABOUT &amp; PROFILE");
-    expect(pageHtml).toMatch(/<h2 class="section__title">プロフィール<\/h2>/);
+    expect(pageHtml).toContain("使われ続ける仕組みに変換する");
     expect(pageHtml).not.toContain("SKILLS &amp; PROFILE");
     expect(pageHtml).not.toContain("スキルと経歴");
     expect(mainStyles).toMatch(

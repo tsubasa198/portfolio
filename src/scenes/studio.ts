@@ -26,7 +26,12 @@ const [HEARING, REQUIREMENTS, WORKFLOW, BUILD] = STUDIO_PRESENTATIONS;
 const SEG = {
   lidOpen: { start: 0, end: 0.07 },
   hearing: { start: HEARING.start, end: HEARING.end },
-  chatItems: { start: 0.025, end: 0.09 },
+  /*
+    蓋が開き切ってから会話を始める。
+    開く途中で出し始めると、モックアップが現れた時点で会話が完成して見え、
+    やり取りが進んでいく感じが出ない。
+  */
+  chatItems: { start: 0.085, end: 0.22 },
   requirements: { start: REQUIREMENTS.start, end: REQUIREMENTS.end },
   docLines: { start: 0.3, end: 0.48 },
   workflow: { start: WORKFLOW.start, end: WORKFLOW.end },
@@ -105,6 +110,86 @@ export function initStudioScene(onUpdate?: () => void): StudioScene {
   ];
   const counters = [...section.querySelectorAll<HTMLElement>(".js-counter")];
 
+  /*
+    接続線をノードの実位置から引き直す。
+    pathを固定座標で持つとノードのサイズや折返しが変わるたびにずれ、
+    線が途中で切れたり次のノードへ届かなくなる。
+  */
+  const flowLines = section.querySelector<SVGSVGElement>(".js-flow-lines");
+  const flowNodeElements = [
+    ...section.querySelectorAll<HTMLElement>(".js-flow-node"),
+  ];
+  /** 何番目のノードから何番目へ繋ぐか。 */
+  const FLOW_CONNECTIONS = [
+    [0, 1],
+    [1, 2],
+    [2, 3],
+    [3, 4],
+  ] as const;
+  /** 各pathの実長。dasharrayを実長へ合わせないと線が出切らない。 */
+  const pathLengths = new Map<SVGPathElement, number>();
+
+  const layoutFlowPaths = () => {
+    const container = flowLines?.parentElement;
+    if (!flowLines || !container) return;
+    const width = container.offsetWidth;
+    const height = container.offsetHeight;
+    if (width === 0 || height === 0) return;
+
+    /*
+      MacBookは3D変形の中にあるので、getBoundingClientRectでは変形後の
+      座標が返り、変形前を基準にしたSVGのviewBoxと合わない。
+      offsetLeft/offsetTopのレイアウト座標を使えば変形の影響を受けない。
+    */
+    const viewBox = flowLines.viewBox.baseVal;
+    const toX = (x: number) => (x / width) * viewBox.width;
+    const toY = (y: number) => (y / height) * viewBox.height;
+    const boxOf = (el: HTMLElement) => ({
+      left: el.offsetLeft,
+      top: el.offsetTop,
+      width: el.offsetWidth,
+      height: el.offsetHeight,
+      right: el.offsetLeft + el.offsetWidth,
+      bottom: el.offsetTop + el.offsetHeight,
+    });
+
+    FLOW_CONNECTIONS.forEach(([fromIndex, toIndex], i) => {
+      const path = flowPaths[i];
+      const from = flowNodeElements[fromIndex];
+      const to = flowNodeElements[toIndex];
+      if (!path || !from || !to) return;
+
+      const a = boxOf(from);
+      const b = boxOf(to);
+      const sameRow = Math.abs(a.top - b.top) < a.height;
+
+      let d: string;
+      if (sameRow) {
+        // 横並びは端どうしを水平に結ぶ
+        const leftToRight = a.left < b.left;
+        const x1 = toX(leftToRight ? a.right : a.left);
+        const x2 = toX(leftToRight ? b.left : b.right);
+        const y = toY(a.top + a.height / 2);
+        const mid = (x1 + x2) / 2;
+        d = `M${x1.toFixed(1)} ${y.toFixed(1)} C ${mid.toFixed(1)} ${y.toFixed(1)}, ${mid.toFixed(1)} ${y.toFixed(1)}, ${x2.toFixed(1)} ${y.toFixed(1)}`;
+      } else {
+        // 段が変わるときは下端から上端へ回り込ませる
+        const x1 = toX(a.left + a.width / 2);
+        const y1 = toY(a.bottom);
+        const x2 = toX(b.left + b.width / 2);
+        const y2 = toY(b.top);
+        const midY = (y1 + y2) / 2;
+        d = `M${x1.toFixed(1)} ${y1.toFixed(1)} C ${x1.toFixed(1)} ${midY.toFixed(1)}, ${x2.toFixed(1)} ${midY.toFixed(1)}, ${x2.toFixed(1)} ${y2.toFixed(1)}`;
+      }
+
+      path.setAttribute("d", d);
+      const length = path.getTotalLength();
+      pathLengths.set(path, length);
+      path.style.strokeDasharray = String(length);
+      path.style.strokeDashoffset = String(length);
+    });
+  };
+
   let progress = 0;
 
   const update = (value: number) => {
@@ -130,7 +215,9 @@ export function initStudioScene(onUpdate?: () => void): StudioScene {
         i / flowPaths.length,
         (i + 1) / flowPaths.length,
       );
-      path.style.strokeDashoffset = String(PATH_DASH_LENGTH * (1 - local));
+      // 実長で割り当てないと、線が最後まで届かないか早く出切ってしまう
+      const length = pathLengths.get(path) ?? PATH_DASH_LENGTH;
+      path.style.strokeDashoffset = String(length * (1 - local));
     });
 
     // 処理件数カウンタ: 進捗に比例して数値が育つ
@@ -143,7 +230,6 @@ export function initStudioScene(onUpdate?: () => void): StudioScene {
       const target = Number(counter.dataset.target ?? "0");
       counter.textContent = String(Math.round(target * countProgress));
     }
-
 
     onUpdate?.();
   };
@@ -166,6 +252,19 @@ export function initStudioScene(onUpdate?: () => void): StudioScene {
     onUpdate: (self) => update(self.progress),
   });
 
+  /*
+    接続線はノードの実位置から引くので、レイアウトが決まってから計算する。
+    画面幅が変わるとノードの折返しも変わるため、リサイズでも引き直す。
+  */
+  const relayoutFlow = () => {
+    layoutFlowPaths();
+    update(progress);
+  };
+  const flowResizeObserver = new ResizeObserver(relayoutFlow);
+  const flowContainer = flowLines?.parentElement;
+  if (flowContainer) flowResizeObserver.observe(flowContainer);
+  layoutFlowPaths();
+
   // 初回ロード時(リロードで途中位置から始まる場合を含む)に一度だけ状態を反映する
   update(trigger.progress);
 
@@ -175,6 +274,7 @@ export function initStudioScene(onUpdate?: () => void): StudioScene {
     setMascotVisible: (visible) => mascot.setVisible(visible),
     destroy: () => {
       trigger.kill();
+      flowResizeObserver.disconnect();
       mascot.destroy();
       delete section.dataset.studioProgress;
     },
