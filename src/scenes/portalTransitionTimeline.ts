@@ -12,6 +12,7 @@ export interface PortalTimelineElements {
   readonly heroIdleBackground: HTMLImageElement;
   readonly heroIdleMascot: HTMLElement;
   readonly heroDetailLayer: HTMLElement;
+  readonly heroForegroundLayer: HTMLElement;
   readonly heroCopy: HTMLElement;
   readonly nextPreview: HTMLElement | null;
   readonly scrollHint: HTMLElement | null;
@@ -32,10 +33,25 @@ export function createPortalTransitionTimeline(
     heroIdleBackground,
     heroIdleMascot,
     heroDetailLayer,
+    heroForegroundLayer,
     heroCopy,
     nextPreview,
     scrollHint,
   } = elements;
+
+  /*
+    スクロール前の静止画を構成するレイヤー群。
+    ラッパーではなく個々の画像を対象にする。ラッパーにopacityをかけると
+    stacking contextが生まれ、内側のmix-blend-mode:screenが背景と混ざれず
+    黒い矩形が出てしまうため。
+    背景・分解レイヤー・前景をまとめて1つのターゲットとして扱うことで、
+    1枚だけ遅れて消えて動画の上に取り残される事故を防ぐ。
+  */
+  const heroIdleVisualLayers: HTMLElement[] = [
+    heroIdleBackground,
+    ...heroDetailLayer.querySelectorAll<HTMLElement>("[data-hero-layer]"),
+    ...heroForegroundLayer.querySelectorAll<HTMLElement>("[data-hero-layer]"),
+  ];
   const config = TRANSITION_CONFIG;
   const mobile = window.matchMedia(
     `(max-width: ${config.mobileBreakpoint}px)`,
@@ -70,14 +86,13 @@ export function createPortalTransitionTimeline(
   });
   gsap.set(bridge, { autoAlpha: 0 });
   gsap.set(vignette, { autoAlpha: mobile ? 0.72 : 0.34 });
-  gsap.set(heroIdleBackground, { autoAlpha: 1, scale: 1 });
+  gsap.set(heroIdleVisualLayers, { autoAlpha: 1, scale: 1 });
   gsap.set(heroIdleMascot, {
     autoAlpha: 1,
     y: 0,
     scale: 1,
     filter: "blur(0px)",
   });
-  gsap.set(heroDetailLayer, { autoAlpha: 1, scale: 1 });
   gsap.set(heroCopy, { autoAlpha: 1, y: 0, filter: "blur(0px)" });
   if (nextPreview) {
     gsap.set(nextPreview, {
@@ -106,7 +121,7 @@ export function createPortalTransitionTimeline(
       0,
     )
     .to(
-      heroIdleBackground,
+      heroIdleVisualLayers,
       {
         autoAlpha: 0,
         scale: 1.004,
@@ -116,7 +131,8 @@ export function createPortalTransitionTimeline(
       0,
     );
 
-  // 10〜22%: Heroコピーと精密装飾を退場させ、ポータルへ視線を集める。
+  // 10〜22%: Heroコピーを退場させ、ポータルへ視線を集める。
+  // 静止レイヤーは冒頭1.8%で一斉に引き継ぎ済みなので、ここでは触らない。
   timeline
     .to(
       heroCopy,
@@ -124,16 +140,6 @@ export function createPortalTransitionTimeline(
         autoAlpha: 0,
         y: -48,
         filter: "blur(10px)",
-        duration: config.approachEnd - config.heroEnd,
-        ease: "power1.inOut",
-      },
-      config.heroEnd,
-    )
-    .to(
-      heroDetailLayer,
-      {
-        autoAlpha: 0,
-        scale: 1.025,
         duration: config.approachEnd - config.heroEnd,
         ease: "power1.inOut",
       },

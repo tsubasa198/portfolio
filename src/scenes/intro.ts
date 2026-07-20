@@ -4,10 +4,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { IntegratedVideoScrubber } from "./integratedVideoScrub";
 import { PortalTunnelCanvas } from "./portalTunnelCanvas";
-import {
-  TRANSITION_CONFIG,
-  portalPhaseAt,
-} from "./portalTransitionConfig";
+import { TRANSITION_CONFIG, portalPhaseAt } from "./portalTransitionConfig";
 import {
   createPortalTransitionTimeline,
   type PortalTimelineElements,
@@ -41,10 +38,7 @@ export function initIntroScene(onUpdate?: () => void): IntroScene {
     ".js-portal-tunnel-canvas",
     section,
   );
-  const heroCopy = requireElement<HTMLElement>(
-    '[data-copy="hero"]',
-    section,
-  );
+  const heroCopy = requireElement<HTMLElement>('[data-copy="hero"]', section);
   const nextPreview = section.querySelector<HTMLElement>(
     ".js-portal-next-preview",
   );
@@ -59,6 +53,10 @@ export function initIntroScene(onUpdate?: () => void): IntroScene {
   );
   const heroDetailLayer = requireElement<HTMLElement>(
     ".js-hero-detail-layer",
+    section,
+  );
+  const heroForegroundLayer = requireElement<HTMLElement>(
+    ".js-hero-foreground-layer",
     section,
   );
 
@@ -78,6 +76,7 @@ export function initIntroScene(onUpdate?: () => void): IntroScene {
     heroIdleBackground,
     heroIdleMascot,
     heroDetailLayer,
+    heroForegroundLayer,
     heroCopy,
     nextPreview,
     scrollHint,
@@ -201,7 +200,8 @@ export function initIntroScene(onUpdate?: () => void): IntroScene {
     visualProgress: () => visualProgress,
     activeSceneId: () => {
       if (visualProgress < TRANSITION_CONFIG.heroJourneyEnd) return "hero";
-      if (visualProgress < TRANSITION_CONFIG.studioPreludeStart) return "tunnel";
+      if (visualProgress < TRANSITION_CONFIG.studioPreludeStart)
+        return "tunnel";
       return "hearing";
     },
     destroy,
