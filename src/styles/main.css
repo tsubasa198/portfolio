@@ -65,6 +65,12 @@
 
 html {
   scroll-behavior: auto; /* スムーススクロールはLenisが担当 */
+  /*
+    bodyだけに指定すると、その値がhtmlへ伝播してbody自身はvisible扱いになり、
+    はみ出した演出用の要素がhtml側で横スクロールできてしまう。
+    ここで明示すると伝播が止まり、横方向は本当に固定される。
+  */
+  overflow-x: hidden;
 }
 
 body {
@@ -1715,6 +1721,35 @@ main {
   box-shadow: 0 18px 48px rgba(255, 112, 26, 0.26);
 }
 
+/* 詳細ページへ飛べるカード。押せることが分かる手掛かりを添える。 */
+.work-card--link {
+  display: block;
+  position: relative;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.work-card--link::after {
+  content: "詳しく見る →";
+  display: block;
+  margin-top: 14px;
+  color: var(--color-accent-amber);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  opacity: 0.75;
+  transition:
+    opacity 0.3s,
+    transform 0.3s var(--ease-out);
+}
+
+.work-card--link:hover::after,
+.work-card--link:focus-visible::after {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
 .work-card__thumb {
   aspect-ratio: 16 / 9;
   border-radius: 12px;
@@ -1921,6 +1956,137 @@ main {
 .js-reveal.is-visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* ---------- 制作実績の詳細ページ ---------- */
+
+/*
+  トップの演出とは切り離した、読ませるためのページ。
+  スクロールジャックがないので、通常の文書として素直に組む。
+*/
+.work-detail-page {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+.work-detail-page .site-header {
+  background: linear-gradient(
+    to bottom,
+    rgba(9, 9, 13, 0.92),
+    rgba(9, 9, 13, 0)
+  );
+}
+
+.work-detail {
+  padding: calc(var(--header-height) + clamp(40px, 8vh, 88px)) 0
+    clamp(60px, 10vh, 120px);
+}
+
+.work-detail__inner {
+  width: min(760px, calc(100% - clamp(32px, 8vw, 96px)));
+  margin: 0 auto;
+}
+
+.work-detail__back {
+  display: inline-block;
+  margin-bottom: clamp(24px, 4vh, 40px);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.work-detail__back:hover {
+  color: var(--color-accent-amber);
+}
+
+.work-detail__eyebrow {
+  margin-bottom: 10px;
+  color: var(--color-accent-orange);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+}
+
+.work-detail__title {
+  margin-bottom: clamp(16px, 2.5vh, 24px);
+  font-size: clamp(26px, 4.4vw, 44px);
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.work-detail__lead {
+  margin-bottom: clamp(18px, 3vh, 28px);
+  color: var(--color-text-secondary);
+  font-size: clamp(15px, 1.5vw, 17px);
+  line-height: 1.9;
+}
+
+/* 一覧カードと同じ配色の帯を置き、どの実績かを視覚的に繋ぐ */
+.work-detail__hero {
+  height: clamp(160px, 28vh, 260px);
+  margin: clamp(28px, 5vh, 48px) 0;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border-warm);
+}
+
+.work-detail__block {
+  margin-bottom: clamp(28px, 5vh, 44px);
+}
+
+.work-detail__block h2 {
+  margin-bottom: 12px;
+  padding-left: 14px;
+  border-left: 3px solid var(--color-accent-orange);
+  font-size: clamp(17px, 2vw, 21px);
+  font-weight: 700;
+}
+
+.work-detail__block p {
+  color: var(--color-text-secondary);
+  font-size: 15px;
+  line-height: 2;
+}
+
+.work-detail__results {
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.work-detail__results li {
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: var(--color-surface-primary);
+  border: 1px solid var(--color-border-warm);
+  font-size: 15px;
+}
+
+.work-detail__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: clamp(40px, 7vh, 72px);
+  padding-top: clamp(24px, 4vh, 40px);
+  border-top: 1px solid var(--color-border-warm);
+}
+
+.work-detail__next {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.work-detail__next:hover {
+  color: var(--color-accent-amber);
+}
+
+.work-detail-page .footer {
+  padding: 28px 0 40px;
+  text-align: center;
 }
 
 /* ---------- デバッグHUD ---------- */

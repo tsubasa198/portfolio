@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="会議音声から議事録と週次レポートを自動生成。共有まで自動化。" />
+    <title>議事録・レポート自動生成AI | T.KITAOKA</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script type="module" src="/src/works.ts"></script>
+  </head>
+  <body class="work-detail-page">
+    <header class="site-header">
+      <a class="site-header__logo" href="/">TSUBASA's PORTFOLIO</a>
+      <a class="site-header__cta" href="/#contact">お問い合わせ</a>
+    </header>
+
+    <main class="work-detail">
+      <div class="work-detail__inner">
+        <a class="work-detail__back" href="/#works">← 制作実績一覧へ戻る</a>
+
+        <p class="work-detail__eyebrow">WORKS</p>
+        <h1 class="work-detail__title">議事録・レポート自動生成AI</h1>
+        <p class="work-detail__lead">会議の録音から議事録を起こし、決定事項とタスクを整理したうえで、週次レポートとして関係者へ共有するまでを自動化しました。</p>
+        <div class="scene-copy__chips"><span class="chip">音声認識</span><span class="chip">文書生成</span></div>
+
+        <div
+          class="work-detail__hero work-card__thumb--d"
+          aria-hidden="true"
+        ></div>
+
+        <section class="work-detail__block">
+          <h2>課題</h2>
+          <p>議事録の作成が後回しになり、決まったことが共有されないまま次の会議を迎えていました。担当者が変わると記録の粒度も揃わず、後から追えなくなっていました。</p>
+        </section>
+        <section class="work-detail__block">
+          <h2>アプローチ</h2>
+          <p>音声認識で文字起こしをしたうえで、LLMが決定事項・宿題・保留事項に分けて整理します。発言者と発言時刻を残し、元の音声へ戻れるようにしました。</p>
+        </section>
+        <section class="work-detail__block">
+          <h2>工夫した点</h2>
+          <p>要約の精度より、追跡できることを重視しました。要約はあくまで入口として扱い、判断に関わる部分は必ず原文へ戻れる導線を残しています。</p>
+        </section>
+
+        <section class="work-detail__block">
+          <h2>成果</h2>
+          <ul class="work-detail__results">
+            <li>議事録作成 会議ごとに30分 → 5分の確認のみ</li>
+            <li>決定事項の共有漏れ 月3件 → 0件</li>
+            <li>発言時刻から元音声へ戻れる導線を用意</li>
+          </ul>
+        </section>
+
+        <nav class="work-detail__nav">
+          <a class="work-detail__next" href="/works/invoice-automation.html">
+            次の実績 → 請求書処理自動化システム
+          </a>
+          <a class="contact-cta" href="/#contact">お問い合わせはこちら →</a>
+        </nav>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>© 2026 T.KITAOKA — AI Engineer Portfolio</p>
+    </footer>
+  </body>
+</html>

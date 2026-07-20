@@ -24,8 +24,11 @@ const normalize = (html: string): string =>
 
 const parseCards = (source: string): WorkCard[] => {
   const cards: WorkCard[] = [];
-  for (const article of source.matchAll(/<article[\s\S]*?<\/article>/g)) {
-    const html = article[0];
+  // 最終レイヤーのカードは詳細ページへのリンクなので article と a の両方を拾う
+  for (const card of source.matchAll(
+    /<(article|a)\b[\s\S]*?class="[^"]*work-card[^"]*"[\s\S]*?<\/\1>/g,
+  )) {
+    const html = card[0];
     const key = html.match(/work-card__thumb--([a-z])/)?.[1];
     const title = html.match(/<h3>([\s\S]*?)<\/h3>/)?.[1];
     const body = html.match(/<p>([\s\S]*?)<\/p>/)?.[1];

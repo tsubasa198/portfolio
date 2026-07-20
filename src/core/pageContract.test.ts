@@ -375,14 +375,16 @@ describe("システム完成から制作実績への飛行遷移", () => {
   });
 
   it("既存デザインの通過用4枚と、2枚ずつの制作実績1・2を別レイヤーで管理する", () => {
-    expect(pageHtml.match(/<article class="work-card works-flight-pass-card js-works-flight-pass-card/g)).toHaveLength(4);
-    expect(pageHtml.match(/<article class="work-card js-works-flight-card"/g)).toHaveLength(4);
-    expect(pageHtml.match(/<article class="work-card/g)).toHaveLength(8);
+    // 最終レイヤーのカードは詳細ページへのリンク(a)、通過用はarticleのまま。
+    // タグや属性の並びは整形で変わるため、クラス名の出現数で数える。
+    expect(pageHtml.match(/js-works-flight-pass-card/g)).toHaveLength(4);
+    expect(pageHtml.match(/js-works-flight-card /g)).toHaveLength(4);
+    expect(pageHtml.match(/class="work-card[ "]/g)).toHaveLength(8);
     expect(pageHtml.match(/works-flight-pass-card[\s\S]*?work-card__thumb--[a-d]/g)).toHaveLength(4);
     expect(pageHtml).not.toContain("AI AUTOMATION");
     expect(pageHtml).not.toContain("RAG SEARCH");
-    expect(pageHtml.match(/<h2 class="works-flight-copy__title"[^>]*>制作実績 01<\/h2>/g)).toHaveLength(1);
-    expect(pageHtml.match(/<h2 class="works-flight-copy__title"[^>]*>制作実績 02<\/h2>/g)).toHaveLength(1);
+    expect(pageHtml.match(/<h2 class="works-flight-copy__title"[^>]*>\s*制作実績 01\s*<\/h2>/g)).toHaveLength(1);
+    expect(pageHtml.match(/<h2 class="works-flight-copy__title"[^>]*>\s*制作実績 02\s*<\/h2>/g)).toHaveLength(1);
     expect(pageHtml.match(/data-works-page="one"/g)).toHaveLength(1);
     expect(pageHtml.match(/data-works-page="two"/g)).toHaveLength(1);
     const firstGroup = pageHtml.match(

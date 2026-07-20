@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="LLM+OCRで請求書データを自動抽出。月3日の作業を半日に短縮。" />
+    <title>請求書処理自動化システム | T.KITAOKA</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script type="module" src="/src/works.ts"></script>
+  </head>
+  <body class="work-detail-page">
+    <header class="site-header">
+      <a class="site-header__logo" href="/">TSUBASA's PORTFOLIO</a>
+      <a class="site-header__cta" href="/#contact">お問い合わせ</a>
+    </header>
+
+    <main class="work-detail">
+      <div class="work-detail__inner">
+        <a class="work-detail__back" href="/#works">← 制作実績一覧へ戻る</a>
+
+        <p class="work-detail__eyebrow">WORKS</p>
+        <h1 class="work-detail__title">請求書処理自動化システム</h1>
+        <p class="work-detail__lead">毎月の請求書処理に3日かかっていた経理業務を、メール受信から会計システムへの登録まで一気通貫で自動化しました。</p>
+        <div class="scene-copy__chips"><span class="chip">Claude API</span><span class="chip">n8n</span></div>
+
+        <div
+          class="work-detail__hero work-card__thumb--a"
+          aria-hidden="true"
+        ></div>
+
+        <section class="work-detail__block">
+          <h2>課題</h2>
+          <p>取引先ごとにフォーマットの異なる請求書がメール・PDF・紙で届き、担当者が目視で転記していました。月末に作業が集中し、確認漏れによる差し戻しも起きていました。</p>
+        </section>
+        <section class="work-detail__block">
+          <h2>アプローチ</h2>
+          <p>OCRで読み取ったテキストをLLMへ渡し、取引先名・金額・支払期日を構造化データとして抽出します。信頼度が低い項目だけを人が確認する画面を用意し、全件チェックをやめました。</p>
+        </section>
+        <section class="work-detail__block">
+          <h2>工夫した点</h2>
+          <p>誤りをゼロにするより、誤りに気づける形にすることを優先しました。抽出結果には必ず根拠となる原文の位置を残し、確認画面から元の請求書へ即座に戻れるようにしています。</p>
+        </section>
+
+        <section class="work-detail__block">
+          <h2>成果</h2>
+          <ul class="work-detail__results">
+            <li>処理時間 月3日 → 半日</li>
+            <li>転記ミスによる差し戻し 月4件 → 0件</li>
+            <li>確認が必要な項目のみ表示し、目視対象を約8割削減</li>
+          </ul>
+        </section>
+
+        <nav class="work-detail__nav">
+          <a class="work-detail__next" href="/works/knowledge-rag.html">
+            次の実績 → 社内ナレッジRAGボット
+          </a>
+          <a class="contact-cta" href="/#contact">お問い合わせはこちら →</a>
+        </nav>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>© 2026 T.KITAOKA — AI Engineer Portfolio</p>
+    </footer>
+  </body>
+</html>
