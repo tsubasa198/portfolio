@@ -65,12 +65,6 @@
 
 html {
   scroll-behavior: auto; /* スムーススクロールはLenisが担当 */
-  /*
-    bodyだけに指定すると、その値がhtmlへ伝播してbody自身はvisible扱いになり、
-    はみ出した演出用の要素がhtml側で横スクロールできてしまう。
-    ここで明示すると伝播が止まり、横方向は本当に固定される。
-  */
-  overflow-x: hidden;
 }
 
 body {
@@ -78,12 +72,18 @@ body {
   color: var(--color-text);
   font-family:
     "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", sans-serif;
-  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
 main {
   position: relative;
+  /*
+    演出用に画面幅を超える要素があるため、ここで横のはみ出しを切る。
+    bodyに指定するとその値がhtmlへ伝播して挙動が読みにくくなり、
+    hiddenだとスクロールコンテナが生まれてstickyが壊れる。
+    clipなら切り取るだけでスクロールコンテナを作らない。
+  */
+  overflow-x: clip;
   background:
     radial-gradient(
       ellipse 72vw 64vh at 88% 34%,

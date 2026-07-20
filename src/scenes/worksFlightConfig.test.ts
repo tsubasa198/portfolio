@@ -150,8 +150,14 @@ describe("飛行中に通過する演出カード", () => {
 });
 
 describe("最終4枚の制作実績カード", () => {
-  it("52%以降に1枚ずつ登場し、78%までに整列する", () => {
-    expect(FINAL_CARD_FLIGHTS[0].start).toBe(0.52);
+  it("着地へ向けて1枚ずつ登場し、グルーピング開始までに整列する", () => {
+    // 開始位置そのものではなく、飛行の流れと矛盾しないことを見る
+    expect(FINAL_CARD_FLIGHTS[0].start).toBeGreaterThan(
+      WORKS_FLIGHT_CONFIG.prepareEnd,
+    );
+    expect(FINAL_CARD_FLIGHTS[0].start).toBeLessThan(
+      WORKS_FLIGHT_CONFIG.centralFlightEnd,
+    );
     for (let index = 1; index < FINAL_CARD_FLIGHTS.length; index += 1) {
       expect(FINAL_CARD_FLIGHTS[index].start).toBeGreaterThan(
         FINAL_CARD_FLIGHTS[index - 1].start,
@@ -160,7 +166,10 @@ describe("最終4枚の制作実績カード", () => {
         FINAL_CARD_FLIGHTS[index].start - FINAL_CARD_FLIGHTS[index - 1].start,
       ).toBeGreaterThanOrEqual(0.05);
     }
-    expect(Math.max(...FINAL_CARD_FLIGHTS.map(({ end }) => end))).toBeLessThanOrEqual(0.78);
+    // 4枚が揃ってからグルーピングへ入る(0.055刻みの加算で誤差が出るため丸めて比べる)
+    expect(
+      Number(Math.max(...FINAL_CARD_FLIGHTS.map(({ end }) => end)).toFixed(4)),
+    ).toBeLessThanOrEqual(WORKS_FLIGHT_CONFIG.worksGroupingStart);
   });
 
   it("四方から入り、着地時点で2×2のDOM位置へ整列する", () => {
@@ -178,8 +187,11 @@ describe("最終4枚の制作実績カード", () => {
     ]);
 
     FINAL_CARD_FLIGHTS.forEach((_, index) => {
-      expect(finalCardStateAt(0.51, index).opacity).toBe(0);
-      expect(finalCardStateAt(0.9, index)).toMatchObject({
+      // 登場前は見えず、着地後は完全に整列している
+      expect(
+        finalCardStateAt(FINAL_CARD_FLIGHTS[0].start - 0.01, index).opacity,
+      ).toBe(0);
+      expect(finalCardStateAt(WORKS_FLIGHT_CONFIG.worksOneStart, index)).toMatchObject({
         opacity: 1,
         finalWeight: 1,
         scale: 1,

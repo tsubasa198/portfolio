@@ -1,14 +1,14 @@
 import { clamp01, segmentProgress } from "../core/sceneProgress";
 
-const PASS_CARD_START = 0.29;
+const PASS_CARD_START = 0.22;
 const PASS_CARD_INTERVAL = 0.085;
 const PASS_CARD_DURATION = 0.115;
 const PASS_CARD_START_SCALE = 0.14;
 const PASS_CARD_END_SCALE = 1.58;
 const PASS_CARD_START_BLUR_PX = 18;
-const FINAL_CARD_START = 0.52;
+const FINAL_CARD_START = 0.38;
 const FINAL_CARD_DELAY = 0.055;
-const FINAL_CARD_END = 0.71;
+const FINAL_CARD_END = 0.56;
 const FINAL_CARD_END_DELAY = 0.02;
 const FINAL_CARD_OPACITY_DURATION = 0.025;
 
