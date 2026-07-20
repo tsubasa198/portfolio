@@ -14,9 +14,5 @@
     "noEmit": true,
     "types": ["vite/client"]
   },
-  "include": ["src"],
-  "exclude": [
-    "src/scenes/portalTransitionTimeline 2.ts",
-    "src/scenes/portalTunnelCanvas 2.ts"
-  ]
+  "include": ["src"]
 }
