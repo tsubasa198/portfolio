@@ -89,7 +89,7 @@
     <link
       rel="preload"
       as="image"
-      href="/assets/portal-tunnel/mascot-portal-tunnel-poster.jpg"
+      href="/assets/hero/hero-video-first-frame.webp"
       fetchpriority="high"
     />
     <link
@@ -199,7 +199,7 @@
                 muted
                 playsinline
                 preload="auto"
-                poster="/assets/portal-tunnel/mascot-portal-tunnel-poster.jpg"
+                poster="/assets/hero/hero-video-first-frame.webp"
                 tabindex="-1"
               >
                 <source
@@ -279,19 +279,22 @@
                 />
               </div>
 
-              <div class="hero-idle-mascot js-hero-idle-mascot">
-                <span class="hero-idle-mascot__shadow"></span>
-                <span class="hero-idle-mascot__jump">
-                  <img
-                    class="hero-idle-mascot__image"
-                    src="/assets/hero/hero-mascot-idle-alpha.png"
-                    alt="元気に手を振るマスコットキャラクター"
-                    width="1254"
-                    height="1254"
-                    fetchpriority="high"
-                    decoding="sync"
-                  />
-                </span>
+              <!-- 動画と同じ座標系に載せ、ハンドオフで位置とサイズを動かさない -->
+              <div class="hero-mascot-layer">
+                <div class="hero-idle-mascot js-hero-idle-mascot">
+                  <span class="hero-idle-mascot__shadow"></span>
+                  <span class="hero-idle-mascot__jump">
+                    <img
+                      class="hero-idle-mascot__image"
+                      src="/assets/hero/hero-mascot-idle-alpha.png"
+                      alt="元気に手を振るマスコットキャラクター"
+                      width="1254"
+                      height="1254"
+                      fetchpriority="high"
+                      decoding="sync"
+                    />
+                  </span>
+                </div>
               </div>
 
               <!-- マスコットより手前を通る光球。奥行きを出すため別レイヤーにする。 -->

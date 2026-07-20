@@ -150,13 +150,14 @@ describe("Hero・追加動画・ヒアリング統合契約", () => {
       pageHtml.match(/<video[\s\S]*?width="1280"[\s\S]*?height="720"/g),
     ).toHaveLength(3);
     expect(pageHtml).toContain(
-      'poster="/assets/portal-tunnel/mascot-portal-tunnel-poster.jpg"',
+      // posterは抽出した動画先頭フレーム。実際に最初に描かれる絵と一致させる。
+      'poster="/assets/hero/hero-video-first-frame.webp"',
     );
     expect(pageHtml).toContain(
       'poster="/assets/portal-arrival/mascot-tunnel-coding-poster.jpg"',
     );
     expect(pageHtml).toMatch(
-      /rel="preload"[\s\S]*?as="image"[\s\S]*?href="\/assets\/portal-tunnel\/mascot-portal-tunnel-poster\.jpg"/,
+      /rel="preload"[\s\S]*?as="image"[\s\S]*?href="\/assets\/hero\/hero-video-first-frame\.webp"/,
     );
     expect(pageHtml).toContain(
       'data-src="/assets/portal-tunnel/mascot-portal-tunnel-scroll.mp4"',

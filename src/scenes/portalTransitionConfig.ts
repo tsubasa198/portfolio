@@ -2,6 +2,12 @@ import { clamp01, segmentProgress } from "../core/sceneProgress";
 
 /** 2本の動画、静止レイヤー、Studioが共有する一本のショットの編集点。 */
 export const TRANSITION_CONFIG = {
+  /**
+   * 待機アニメーションを止め、動画先頭フレームと同じ姿勢へ戻し終える点。
+   * ジャンプの途中で動画へ渡すとマスコットが跳ねて見えるため、
+   * alphaを入れ替える前に姿勢だけを先に揃える。
+   */
+  heroIdleSettleEnd: 0.008,
   heroIdleHandoffEnd: 0.018,
   heroEnd: 0.1,
   approachEnd: 0.22,
@@ -175,8 +181,7 @@ export function mascotVideoHandoffTransform(
   const renderedHeight = MASCOT_VIDEO_MATCH_RECT.videoHeight * coverScale;
   const originX = (viewportWidth - renderedWidth) * objectPositionX;
   const originY = (viewportHeight - renderedHeight) * 0.5;
-  const targetLeft =
-    originX + MASCOT_VIDEO_MATCH_RECT.left * coverScale;
+  const targetLeft = originX + MASCOT_VIDEO_MATCH_RECT.left * coverScale;
   const targetTop = originY + MASCOT_VIDEO_MATCH_RECT.top * coverScale;
   const targetSize = MASCOT_VIDEO_MATCH_RECT.size * coverScale;
 
@@ -229,9 +234,15 @@ export function integratedVideoTimesAt(
     additionalPlayableEnd,
   );
 
+  /*
+    静止レイヤーから動画へ渡し終えるまでは先頭フレームに固定する。
+    ここで動画が進んでいると、静止レイヤーは動画の0秒の絵に合わせてあるのに
+    実際には数フレーム先の絵が背面にあることになり、切り替えた瞬間に
+    マスコットや光が飛んで見える。
+  */
   const existingBeforeBridge = segmentProgress(
     value,
-    0,
+    TRANSITION_CONFIG.heroIdleHandoffEnd,
     TRANSITION_CONFIG.existingTunnelEnd,
   );
   const bridgeProgress = segmentProgress(

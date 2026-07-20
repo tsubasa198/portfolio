@@ -86,13 +86,9 @@ export function createPortalTransitionTimeline(
   });
   gsap.set(bridge, { autoAlpha: 0 });
   gsap.set(vignette, { autoAlpha: mobile ? 0.72 : 0.34 });
-  gsap.set(heroIdleVisualLayers, { autoAlpha: 1, scale: 1 });
-  gsap.set(heroIdleMascot, {
-    autoAlpha: 1,
-    y: 0,
-    scale: 1,
-    filter: "blur(0px)",
-  });
+  // 静止レイヤーは動画と同じ座標系に置いてあるので、変形は一切加えない
+  gsap.set(heroIdleVisualLayers, { autoAlpha: 1 });
+  gsap.set(heroIdleMascot, { autoAlpha: 1 });
   gsap.set(heroCopy, { autoAlpha: 1, y: 0, filter: "blur(0px)" });
   if (nextPreview) {
     gsap.set(nextPreview, {
@@ -106,29 +102,33 @@ export function createPortalTransitionTimeline(
   }
   if (scrollHint) gsap.set(scrollHint, { autoAlpha: 1 });
 
-  // 冒頭1.8%: 待機モーションと背景プレートを同時に動画へ短く引き継ぐ。
+  /*
+    冒頭1.8%を2段に分ける。
+    0〜0.8%は姿勢の収束だけに使い、静止レイヤーは見えたまま動画先頭フレームと
+    同じ姿勢へ寄せる。0.8〜1.8%で短くalphaを入れ替える。
+    位置と姿勢が揃っていれば、この短さでも同じ画面が動き出したように見える。
+    マスコットを動かしたりぼかしたりすると動画とずれるので、alphaだけ変える。
+  */
   timeline
     .to(
       heroIdleMascot,
       {
         autoAlpha: 0,
-        y: -5,
-        scale: 1.015,
-        filter: "blur(2px)",
-        duration: config.heroIdleHandoffEnd,
+        duration: config.heroIdleHandoffEnd - config.heroIdleSettleEnd,
         ease: "power1.out",
       },
-      0,
+      config.heroIdleSettleEnd,
     )
     .to(
       heroIdleVisualLayers,
       {
         autoAlpha: 0,
-        scale: 1.004,
-        duration: config.heroIdleHandoffEnd,
+        // 姿勢を先に揃えてから、短くalphaだけを入れ替える。
+        // scaleを足すと transform-origin が中心でないぶん位置がずれる。
+        duration: config.heroIdleHandoffEnd - config.heroIdleSettleEnd,
         ease: "power1.out",
       },
-      0,
+      config.heroIdleSettleEnd,
     );
 
   // 10〜22%: Heroコピーを退場させ、ポータルへ視線を集める。

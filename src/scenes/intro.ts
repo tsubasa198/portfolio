@@ -2,6 +2,7 @@
 
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { initHeroIdleSettle } from "./heroIdleSettle";
 import { IntegratedVideoScrubber } from "./integratedVideoScrub";
 import { PortalTunnelCanvas } from "./portalTunnelCanvas";
 import { TRANSITION_CONFIG, portalPhaseAt } from "./portalTransitionConfig";
@@ -84,6 +85,12 @@ export function initIntroScene(onUpdate?: () => void): IntroScene {
 
   const renderer = new PortalTunnelCanvas(canvas);
   const timeline = createPortalTransitionTimeline(elements);
+  /*
+    待機アニメーションはスクロールが始まった時点で基準姿勢へ寄せる。
+    姿勢が揃う前にalphaを入れ替えると、ジャンプ途中のマスコットや
+    浮いた状態のパネルが動画の姿勢へ瞬間移動して見える。
+  */
+  const idleSettle = initHeroIdleSettle(section);
   let targetProgress = 0;
   let visualProgress = 0;
   let sceneVisible = true;
@@ -97,6 +104,7 @@ export function initIntroScene(onUpdate?: () => void): IntroScene {
     maxDeltaMs: TRANSITION_CONFIG.videoMaxDeltaMs,
     onUpdate: (progress, times) => {
       visualProgress = progress;
+      idleSettle.setProgress(visualProgress);
       timeline.progress(visualProgress);
       section.dataset.portalVisualProgress = visualProgress.toFixed(4);
       section.dataset.portalVideoTime = times.existingTime.toFixed(3);
@@ -185,6 +193,7 @@ export function initIntroScene(onUpdate?: () => void): IntroScene {
     trigger.kill();
     timeline.kill();
     scrubber.destroy();
+    idleSettle.destroy();
     gsap.ticker.remove(renderTick);
     document.removeEventListener("visibilitychange", handleVisibilityChange);
     visibilityObserver.disconnect();

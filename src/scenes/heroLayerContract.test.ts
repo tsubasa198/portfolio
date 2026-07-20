@@ -127,9 +127,7 @@ describe("レイヤーの重なり順", () => {
   });
 
   it("発光素材はscreen、非発光の台座は通常合成にする", () => {
-    expect(ruleBody(".hero-layer")).toContain(
-      "mix-blend-mode: screen",
-    );
+    expect(ruleBody(".hero-layer")).toContain("mix-blend-mode: screen");
     // 台座は金属。screenだと暗部が浮いて質感が壊れる。
     expect(ruleBody(".hero-layer--platform")).toContain(
       "mix-blend-mode: normal",
@@ -226,9 +224,35 @@ describe("待機アニメーション", () => {
     );
   });
 
-  it("スクロールズームで画像の端が覗かないようオーバースキャンする", () => {
-    expect(mainStyles).toMatch(/--hero-world-width:\s*max\(106vw/);
-    expect(mainStyles).toMatch(/--hero-world-height:\s*max\(106svh/);
+  it("静止レイヤーの座標系が動画のcover表示と一致する", () => {
+    // 動画は16:9をobject-fit:coverで画面全体へ敷く。静止側が別の倍率を
+    // 持つと、ハンドオフの瞬間に画面全体がズームして見える。
+    expect(mainStyles).toMatch(
+      /--hero-world-width:\s*max\(100vw,\s*177\.78svh\)/,
+    );
+    expect(mainStyles).toMatch(
+      /--hero-world-height:\s*max\(100svh,\s*56\.25vw\)/,
+    );
     expect(ruleBody(".portal-camera")).toContain("overflow: hidden");
+  });
+
+  it("背景と動画が同じ矩形・同じobject-fitで敷かれる", () => {
+    const background = ruleBody(".hero-idle-background");
+    const video = ruleBody(".portal-scrub-video");
+    for (const rule of [background, video]) {
+      expect(rule).toContain("object-fit: cover");
+      expect(rule).toContain("object-position: 50% 50%");
+      expect(rule).toContain("width: 100%");
+      expect(rule).toContain("height: 100%");
+    }
+  });
+
+  it("マスコットも同じ座標系に載せ、画面サイズごとの個別位置を持たない", () => {
+    const mascot = ruleBody(".hero-idle-mascot");
+    // vw/svh基準だと画面サイズごとに動画とのずれ方が変わってしまう
+    expect(mascot).not.toMatch(/left:\s*calc\([^)]*vw/);
+    expect(mascot).not.toMatch(/width:\s*[\d.]+svh/);
+    expect(mascot).toMatch(/left:\s*[\d.]+%/);
+    expect(mascot).toMatch(/width:\s*[\d.]+%/);
   });
 });
