@@ -6,7 +6,8 @@
  *            screenは result = 1-(1-a)(1-b) なので、背景が完全な黒(0)なら
  *            下のレイヤーがそのまま残り、透過と同じ振る舞いになる。
  *            逆に黒が浮いていると画面全体にモヤが乗るため、変換前に検証する。
- *   alpha  : 本物の透過が必要な素材（発光しない立体物）。
+ *   matte  : 黒背景で届いた非発光の立体物。screenだと暗部が浮いて金属感が
+ *            失われるので、シルエットを塗りつぶしてアルファを作る。
  *   opaque : 最背面に敷く不透明な背景。
  *
  * Playwright付属のChromiumをエンコーダとして使うため、画像処理用の
@@ -40,12 +41,10 @@ const OUT_DIR = join(PROJECT_ROOT, "public", "assets", "hero");
 const MAX_BACKGROUND_LUMA = 12;
 /** 市松模様入りの旧素材を検出する閾値。背景がこれより明るければ差し替え漏れ。 */
 const CHECKERED_SUSPECT_LUMA = 120;
-/** 球体の芯とみなす輝度下限。黒背景から光球を切り出すために使う。 */
-const SPHERE_LUMA_THRESHOLD = Number(process.env.SPHERE_LUMA_THRESHOLD ?? 60);
-/** 球体検出でノイズを除外する下限面積(px)。 */
-const MIN_SPHERE_AREA = 3000;
-/** 切り出し時に球体の外周へ残す余白(px)。発光のにじみを欠けさせない。 */
-const SPHERE_PADDING = 8;
+/** matte素材でシルエットの内側とみなす輝度下限。 */
+const MATTE_LUMA_THRESHOLD = 14;
+/** シルエット境界をなめらかにするぼかし半径(px)。 */
+const MATTE_FEATHER_RADIUS = 2;
 
 /**
  * 目立つ要素ほど高品質にする。背景は暗いグラデーションが主体で劣化が
@@ -61,63 +60,62 @@ const ASSET_SPECS = [
     role: "背景・床の反射",
   },
   {
-    src: "2-3.png",
-    out: "hero-portal-inner.webp",
+    src: "ChatGPT Image 2026年7月20日 18_15_08 (2).png",
+    out: "hero-portal.webp",
     quality: 0.95,
     mode: "screen",
-    role: "ポータル内部光",
+    role: "ポータル(リング+内部光)",
   },
   {
-    src: "2-2.png",
-    out: "hero-portal-ring.webp",
+    src: "ChatGPT Image 2026年7月20日 18_15_08 (3).png",
+    out: "hero-platform.webp",
     quality: 0.95,
-    mode: "screen",
-    role: "ポータルリング",
+    mode: "matte",
+    role: "台座",
   },
   {
-    src: "2-4.png",
+    src: "ChatGPT Image 2026年7月20日 18_15_08 (4).png",
     out: "hero-orbit-particles.webp",
     quality: 0.94,
     mode: "screen",
     role: "軌道線・粒子",
   },
   {
-    src: "2-5.png",
-    out: "hero-platform.webp",
-    quality: 0.95,
-    mode: "alpha",
-    role: "台座",
-  },
-  {
-    src: "2-7.png",
-    out: "hero-ui-panel-code.webp",
+    src: "ChatGPT Image 2026年7月20日 18_15_09 (5).png",
+    out: "hero-ui-panel-code-tilted.webp",
     quality: 0.95,
     mode: "screen",
-    role: "UIパネル(コード)",
+    role: "UIパネル(コード・傾き)",
   },
   {
-    src: "2-6.png",
+    src: "ChatGPT Image 2026年7月20日 18_15_09 (6).png",
     out: "hero-ui-panel-chart.webp",
     quality: 0.95,
     mode: "screen",
     role: "UIパネル(グラフ)",
   },
+  {
+    src: "ChatGPT Image 2026年7月20日 18_15_09 (7).png",
+    out: "hero-ui-panel-code.webp",
+    quality: 0.95,
+    mode: "screen",
+    role: "UIパネル(コード・正面)",
+  },
+  {
+    src: "ChatGPT Image 2026年7月20日 18_15_09 (8).png",
+    out: "hero-sphere-bright.webp",
+    quality: 0.94,
+    mode: "screen",
+    role: "光球(明るい)",
+  },
+  {
+    src: "ChatGPT Image 2026年7月20日 18_15_10 (9).png",
+    out: "hero-sphere-glass.webp",
+    quality: 0.94,
+    mode: "screen",
+    role: "光球(ガラス質)",
+  },
 ];
-
-/** 2-8はスプライトシートなので、球体を個別に切り出してから変換する。 */
-const SPRITE_SHEET = {
-  src: "2-8.png",
-  quality: 0.94,
-  mode: "screen",
-  role: "球体",
-  /** 面積の降順に並べた検出結果へ、この順で名前を割り当てる。 */
-  outputs: [
-    "hero-sphere-front-left.webp",
-    "hero-sphere-front-right.webp",
-    "hero-sphere-small-a.webp",
-    "hero-sphere-small-b.webp",
-  ],
-};
 
 function loadPlaywright() {
   const candidates = [
@@ -155,21 +153,18 @@ async function inspectSource(page, dataUrl) {
     const canvas = document.createElement("canvas");
     canvas.width = image.naturalWidth;
     canvas.height = image.naturalHeight;
-    canvas.getContext("2d").drawImage(image, 0, 0);
-    const { data } = canvas
-      .getContext("2d")
-      .getImageData(0, 0, canvas.width, canvas.height);
+    const context = canvas.getContext("2d");
+    context.drawImage(image, 0, 0);
+    const { data } = context.getImageData(0, 0, canvas.width, canvas.height);
 
     const luma = (i) =>
       0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
 
-    // 四辺の縁を背景のサンプルとみなす
     let edgeLumaSum = 0;
     let edgeLumaMax = 0;
     let edgeCount = 0;
     const inspectPixel = (x, y) => {
-      const i = (y * canvas.width + x) * 4;
-      const value = luma(i);
+      const value = luma((y * canvas.width + x) * 4);
       edgeLumaSum += value;
       if (value > edgeLumaMax) edgeLumaMax = value;
       edgeCount++;
@@ -184,10 +179,8 @@ async function inspectSource(page, dataUrl) {
     }
 
     let transparent = 0;
-    let partial = 0;
     for (let i = 3; i < data.length; i += 4) {
-      if (data[i] === 0) transparent++;
-      else if (data[i] < 255) partial++;
+      if (data[i] < 255) transparent++;
     }
 
     return {
@@ -195,15 +188,14 @@ async function inspectSource(page, dataUrl) {
       height: canvas.height,
       edgeLumaAverage: edgeLumaSum / edgeCount,
       edgeLumaMax,
-      transparentRatio: transparent / (canvas.width * canvas.height),
-      partialRatio: partial / (canvas.width * canvas.height),
+      alphaRatio: transparent / (canvas.width * canvas.height),
     };
   }, dataUrl);
 }
 
 /** 素材が仕様を満たしているか検証し、満たさなければ理由を返す。 */
 function validateSource(spec, info) {
-  if (spec.mode === "screen") {
+  if (spec.mode === "screen" || spec.mode === "matte") {
     if (info.edgeLumaAverage > CHECKERED_SUSPECT_LUMA) {
       return (
         `背景が明るすぎます(平均輝度 ${info.edgeLumaAverage.toFixed(0)})。` +
@@ -213,25 +205,14 @@ function validateSource(spec, info) {
     if (info.edgeLumaAverage > MAX_BACKGROUND_LUMA) {
       return (
         `背景の黒が浮いています(平均輝度 ${info.edgeLumaAverage.toFixed(1)}, ` +
-        `最大 ${info.edgeLumaMax.toFixed(0)})。screen合成でモヤになります。` +
-        `背景を #000000 にして書き出し直してください。`
+        `最大 ${info.edgeLumaMax.toFixed(0)})。背景を #000000 にして書き出し直してください。`
       );
     }
   }
-
-  if (spec.mode === "alpha") {
-    if (info.transparentRatio + info.partialRatio === 0) {
-      return (
-        `透過がありません(全ピクセル不透明)。` +
-        `背景を透明にしたPNGで書き出し直してください。`
-      );
-    }
-  }
-
   return null;
 }
 
-/** Chromiumの中でPNGをWebPへ再エンコードする。透過はcanvasが保持する。 */
+/** Chromiumの中でPNGをWebPへ再エンコードする。 */
 async function encodeWebp(page, dataUrl, quality) {
   const base64 = await page.evaluate(
     async ({ dataUrl, quality }) => {
@@ -250,123 +231,119 @@ async function encodeWebp(page, dataUrl, quality) {
 }
 
 /**
- * 黒背景の中から光球を輝度で検出し、1つずつ切り出す。
- * 座標をハードコードしないので、スプライトの配置が変わっても追従する。
+ * 黒背景の立体物からアルファを作る。
+ * 輝度だけでアルファにすると暗い金属部分が透けてしまうため、
+ * シルエットの輪郭を求めて内側を一様に不透明で塗りつぶす。
  */
-async function extractSpheres(page, dataUrl, quality, count) {
-  return page.evaluate(
-    async ({ dataUrl, quality, count, minArea, padding, lumaThreshold }) => {
+async function encodeMatte(page, dataUrl, quality) {
+  const result = await page.evaluate(
+    async ({ dataUrl, quality, lumaThreshold, featherRadius }) => {
       const image = new Image();
       image.src = dataUrl;
       await image.decode();
-      const { naturalWidth: width, naturalHeight: height } = image;
-
+      const w = image.naturalWidth;
+      const h = image.naturalHeight;
       const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
+      canvas.width = w;
+      canvas.height = h;
       const context = canvas.getContext("2d");
       context.drawImage(image, 0, 0);
-      const { data } = context.getImageData(0, 0, width, height);
+      const imageData = context.getImageData(0, 0, w, h);
+      const d = imageData.data;
 
-      const isLit = (index) => {
-        const i = index * 4;
-        const luma =
-          0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
-        return luma > lumaThreshold;
-      };
+      const lit = new Uint8Array(w * h);
+      for (let p = 0; p < w * h; p++) {
+        const i = p * 4;
+        const luma = 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+        lit[p] = luma > lumaThreshold ? 1 : 0;
+      }
 
-      // 幅優先探索で連結成分を求める。再帰だと深さでスタックが尽きる。
-      const visited = new Uint8Array(width * height);
-      const components = [];
-
-      for (let start = 0; start < visited.length; start++) {
-        if (visited[start] || !isLit(start)) continue;
-
-        let minX = width;
-        let minY = height;
-        let maxX = 0;
-        let maxY = 0;
-        let area = 0;
-        const queue = [start];
-        visited[start] = 1;
-
-        while (queue.length > 0) {
-          const index = queue.pop();
-          const x = index % width;
-          const y = (index - x) / width;
-          area++;
-          if (x < minX) minX = x;
-          if (x > maxX) maxX = x;
-          if (y < minY) minY = y;
-          if (y > maxY) maxY = y;
-
-          const neighbors = [
-            x > 0 ? index - 1 : -1,
-            x < width - 1 ? index + 1 : -1,
-            y > 0 ? index - width : -1,
-            y < height - 1 ? index + width : -1,
-          ];
-          for (const neighbor of neighbors) {
-            if (neighbor < 0 || visited[neighbor] || !isLit(neighbor)) continue;
-            visited[neighbor] = 1;
-            queue.push(neighbor);
-          }
+      // 画像の外周から到達できる黒だけを「外側」とする。
+      // 到達しない黒は物体内部の陰影なので不透明のまま残す。
+      const outside = new Uint8Array(w * h);
+      const stack = [];
+      const pushIfDark = (x, y) => {
+        const p = y * w + x;
+        if (!outside[p] && !lit[p]) {
+          outside[p] = 1;
+          stack.push(p);
         }
+      };
+      for (let x = 0; x < w; x++) {
+        pushIfDark(x, 0);
+        pushIfDark(x, h - 1);
+      }
+      for (let y = 0; y < h; y++) {
+        pushIfDark(0, y);
+        pushIfDark(w - 1, y);
+      }
+      while (stack.length > 0) {
+        const p = stack.pop();
+        const x = p % w;
+        const y = (p - x) / w;
+        if (x > 0) pushIfDark(x - 1, y);
+        if (x < w - 1) pushIfDark(x + 1, y);
+        if (y > 0) pushIfDark(x, y - 1);
+        if (y < h - 1) pushIfDark(x, y + 1);
+      }
 
-        if (area >= minArea) {
-          components.push({ minX, minY, maxX, maxY, area });
+      // シルエット(外側でない領域)を不透明にする
+      const alpha = new Float32Array(w * h);
+      let solidCount = 0;
+      for (let p = 0; p < w * h; p++) {
+        alpha[p] = outside[p] ? 0 : 1;
+        if (!outside[p]) solidCount++;
+      }
+
+      // 境界のジャギーを均すため、アルファだけを軽くぼかす
+      const blurred = new Float32Array(w * h);
+      const temp = new Float32Array(w * h);
+      const r = featherRadius;
+      const span = r * 2 + 1;
+      for (let y = 0; y < h; y++) {
+        let sum = 0;
+        for (let x = -r; x <= r; x++)
+          sum += alpha[y * w + Math.min(w - 1, Math.max(0, x))];
+        for (let x = 0; x < w; x++) {
+          temp[y * w + x] = sum / span;
+          sum +=
+            alpha[y * w + Math.min(w - 1, x + r + 1)] -
+            alpha[y * w + Math.max(0, x - r)];
+        }
+      }
+      for (let x = 0; x < w; x++) {
+        let sum = 0;
+        for (let y = -r; y <= r; y++)
+          sum += temp[Math.min(h - 1, Math.max(0, y)) * w + x];
+        for (let y = 0; y < h; y++) {
+          blurred[y * w + x] = sum / span;
+          sum +=
+            temp[Math.min(h - 1, y + r + 1) * w + x] -
+            temp[Math.max(0, y - r) * w + x];
         }
       }
 
-      // 大きいものほど前景向き。上位から必要数だけ切り出す。
-      components.sort((a, b) => b.area - a.area);
+      for (let p = 0; p < w * h; p++) {
+        d[p * 4 + 3] = Math.round(Math.min(1, blurred[p]) * 255);
+      }
+      context.putImageData(imageData, 0, 0);
 
       return {
-        detected: components.length,
-        crops: components.slice(0, count).map((component) => {
-          const left = Math.max(0, component.minX - padding);
-          const top = Math.max(0, component.minY - padding);
-          const right = Math.min(width, component.maxX + padding + 1);
-          const bottom = Math.min(height, component.maxY + padding + 1);
-          const cropWidth = right - left;
-          const cropHeight = bottom - top;
-
-          const crop = document.createElement("canvas");
-          crop.width = cropWidth;
-          crop.height = cropHeight;
-          // screen合成前提なので、切り出しの余白は黒で埋める
-          const cropContext = crop.getContext("2d");
-          cropContext.fillStyle = "#000000";
-          cropContext.fillRect(0, 0, cropWidth, cropHeight);
-          cropContext.drawImage(
-            canvas,
-            left,
-            top,
-            cropWidth,
-            cropHeight,
-            0,
-            0,
-            cropWidth,
-            cropHeight,
-          );
-
-          return {
-            base64: crop.toDataURL("image/webp", quality).split(",")[1],
-            width: cropWidth,
-            height: cropHeight,
-          };
-        }),
+        base64: canvas.toDataURL("image/webp", quality).split(",")[1],
+        solidRatio: solidCount / (w * h),
       };
     },
     {
       dataUrl,
       quality,
-      count,
-      minArea: MIN_SPHERE_AREA,
-      padding: SPHERE_PADDING,
-      lumaThreshold: SPHERE_LUMA_THRESHOLD,
+      lumaThreshold: MATTE_LUMA_THRESHOLD,
+      featherRadius: MATTE_FEATHER_RADIUS,
     },
   );
+  return {
+    buffer: Buffer.from(result.base64, "base64"),
+    solidRatio: result.solidRatio,
+  };
 }
 
 async function main() {
@@ -384,14 +361,14 @@ async function main() {
     await page.goto("about:blank");
 
     console.log(
-      "素材      用途      → 生成物                        品質   変換前 → 変換後",
+      "用途     素材の役割              → 生成物                             品質   変換前 → 変換後",
     );
-    console.log("─".repeat(84));
+    console.log("─".repeat(100));
 
-    for (const spec of [...ASSET_SPECS, SPRITE_SHEET]) {
+    for (const spec of ASSET_SPECS) {
       const srcPath = join(SRC_DIR, spec.src);
       if (!existsSync(srcPath)) {
-        missing.push(`${spec.src} (${spec.role})`);
+        missing.push(`${spec.role} (${spec.src})`);
         continue;
       }
 
@@ -399,49 +376,31 @@ async function main() {
       const info = await inspectSource(page, dataUrl);
       const problem = validateSource(spec, info);
       if (problem) {
-        problems.push(`${spec.src} (${spec.role}): ${problem}`);
+        problems.push(`${spec.role} (${spec.src}): ${problem}`);
         continue;
       }
 
       const sourceSize = statSync(srcPath).size;
       totalSource += sourceSize;
 
-      // スプライトシートは切り出してから個別に書き出す
-      if (spec === SPRITE_SHEET) {
-        const { detected, crops } = await extractSpheres(
-          page,
-          dataUrl,
-          spec.quality,
-          spec.outputs.length,
-        );
-        if (crops.length < spec.outputs.length) {
-          problems.push(
-            `${spec.src}: 球体の検出数が足りません(検出${detected} / 必要${spec.outputs.length})。` +
-              `SPHERE_LUMA_THRESHOLD環境変数で閾値を調整できます。`,
-          );
-          continue;
-        }
-        crops.forEach((crop, index) => {
-          const out = spec.outputs[index];
-          const buffer = Buffer.from(crop.base64, "base64");
-          writeFileSync(join(OUT_DIR, out), buffer);
-          totalOutput += buffer.length;
-          console.log(
-            `${spec.src.padEnd(9)} ${"screen".padEnd(9)} → ${out.padEnd(28)} ${spec.quality} ${`${crop.width}x${crop.height}`.padStart(9)} → ${formatKb(buffer.length).padStart(6)}`,
-          );
-        });
-        continue;
+      let buffer;
+      let note = "";
+      if (spec.mode === "matte") {
+        const matte = await encodeMatte(page, dataUrl, spec.quality);
+        buffer = matte.buffer;
+        note = ` シルエット${(matte.solidRatio * 100).toFixed(0)}%`;
+      } else {
+        buffer = await encodeWebp(page, dataUrl, spec.quality);
       }
 
-      const buffer = await encodeWebp(page, dataUrl, spec.quality);
       writeFileSync(join(OUT_DIR, spec.out), buffer);
       totalOutput += buffer.length;
       console.log(
-        `${spec.src.padEnd(9)} ${spec.mode.padEnd(9)} → ${spec.out.padEnd(28)} ${spec.quality} ${formatKb(sourceSize).padStart(9)} → ${formatKb(buffer.length).padStart(6)}`,
+        `${spec.mode.padEnd(8)} ${spec.role.padEnd(22)} → ${spec.out.padEnd(34)} ${spec.quality} ${formatKb(sourceSize).padStart(8)} → ${formatKb(buffer.length).padStart(6)}${note}`,
       );
     }
 
-    console.log("─".repeat(84));
+    console.log("─".repeat(100));
 
     if (missing.length > 0) {
       console.log("\n⏳ 未配置の素材:");
@@ -462,7 +421,7 @@ async function main() {
     if (totalOutput > 0) {
       const mb = (bytes) => `${(bytes / 1024 / 1024).toFixed(2)}MB`;
       console.log(
-        `\n✅ ${mb(totalSource)} → ${mb(totalOutput)} ` +
+        `\n✅ ${ASSET_SPECS.length}ファイル  ${mb(totalSource)} → ${mb(totalOutput)} ` +
           `(-${(((totalSource - totalOutput) / totalSource) * 100).toFixed(0)}%)`,
       );
       console.log(`出力先: ${OUT_DIR}`);
