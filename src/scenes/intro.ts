@@ -3,6 +3,7 @@
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { initHeroIdleSettle } from "./heroIdleSettle";
+import { initHeroRipple } from "./heroRipple";
 import { IntegratedVideoScrubber } from "./integratedVideoScrub";
 import { PortalTunnelCanvas } from "./portalTunnelCanvas";
 import { TRANSITION_CONFIG, portalPhaseAt } from "./portalTransitionConfig";
@@ -91,6 +92,12 @@ export function initIntroScene(onUpdate?: () => void): IntroScene {
     浮いた状態のパネルが動画の姿勢へ瞬間移動して見える。
   */
   const idleSettle = initHeroIdleSettle(section);
+  /*
+    静止レイヤーと動画の素材差を光で覆う中継演出。
+    位置を詰めても発光や粒子の違いは残るので、切り替えの瞬間に
+    ステージ中心から波紋を広げて視線をそちらへ移す。
+  */
+  const ripple = initHeroRipple(section);
   let targetProgress = 0;
   let visualProgress = 0;
   let sceneVisible = true;
@@ -105,6 +112,7 @@ export function initIntroScene(onUpdate?: () => void): IntroScene {
     onUpdate: (progress, times) => {
       visualProgress = progress;
       idleSettle.setProgress(visualProgress);
+      ripple?.setProgress(visualProgress);
       timeline.progress(visualProgress);
       section.dataset.portalVisualProgress = visualProgress.toFixed(4);
       section.dataset.portalVideoTime = times.existingTime.toFixed(3);
@@ -194,6 +202,7 @@ export function initIntroScene(onUpdate?: () => void): IntroScene {
     timeline.kill();
     scrubber.destroy();
     idleSettle.destroy();
+    ripple?.destroy();
     gsap.ticker.remove(renderTick);
     document.removeEventListener("visibilitychange", handleVisibilityChange);
     visibilityObserver.disconnect();

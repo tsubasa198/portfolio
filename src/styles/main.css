@@ -68,6 +68,14 @@
   /* 全レイヤーが同じポータル中心を基準に拡大するための原点 */
   --hero-portal-origin-x: 72%;
   --hero-portal-origin-y: 52%;
+  /*
+    マスコットが立つステージ円盤の中心。波紋の発生源をここに固定する。
+    台座レイヤーの配置と同じ値にしてあり、動画側のステージ波紋とも重なる。
+  */
+  --hero-stage-center-x: 76%;
+  --hero-stage-center-y: 83%;
+  /* 波紋の進み具合(0〜1)。スクロール進捗からJSが書き込む。 */
+  --hero-ripple-progress: 0;
 }
 
 * {
@@ -1886,6 +1894,83 @@ main {
   transform: translateY(0);
 }
 
+/* ---------- ステージ起点のエネルギー波紋 ---------- */
+
+/*
+  静止レイヤーから動画へ渡る瞬間を覆うための中継演出。
+  発生源はステージ中心に固定し、そこから画面全体へ広がる。
+  素材どうしの微差を光で埋めるのが目的なので、白いフラッシュではなく
+  オレンジ〜アンバーの発光リングとして出す。
+*/
+/*
+  発生源をステージへ固定するため、他のレイヤーと同じ座標系に載せる。
+  画面基準で置くと、画面比率が16:9から外れたときに台座から中心がずれる。
+  リング自体は240vmaxあるので、この矩形に収まらなくても画面全体へ届く。
+*/
+.hero-ripple {
+  position: absolute;
+  left: calc(50% - var(--hero-world-width) / 2);
+  top: calc(50% - var(--hero-world-height) / 2);
+  /* マスコット(7)と前景の光球(8)より前に置き、画面全体を覆う */
+  z-index: 9;
+  width: var(--hero-world-width);
+  height: var(--hero-world-height);
+  pointer-events: none;
+  /* 黒地に足し込む合成。下の絵を消さずに光だけを重ねられる。 */
+  mix-blend-mode: screen;
+  opacity: 0;
+  will-change: opacity;
+}
+
+.hero-ripple__ring,
+.hero-ripple__core {
+  position: absolute;
+  left: var(--hero-stage-center-x);
+  top: var(--hero-stage-center-y);
+  display: block;
+  /* 画面のどこからでも端まで届く大きさ。translateで中心を合わせる。 */
+  width: 240vmax;
+  height: 240vmax;
+  translate: -50% -50%;
+  border-radius: 50%;
+  will-change: transform, opacity;
+}
+
+/*
+  リングは塗りではなく細い発光の輪。
+  内側と外側を透明にしたグラデーションで、輪郭のはっきりした
+  デジタルな波紋にする。水面のような滲みは持たせない。
+*/
+.hero-ripple__ring {
+  background: radial-gradient(
+    circle,
+    transparent 45.4%,
+    rgba(255, 128, 30, 0.1) 47%,
+    rgba(255, 164, 74, 0.58) 48.3%,
+    rgba(255, 196, 118, 0.86) 49%,
+    rgba(255, 150, 56, 0.5) 49.8%,
+    rgba(255, 116, 20, 0.08) 51%,
+    transparent 53%
+  );
+  /* にじませすぎると水面のような波紋になる。輪郭は残す。 */
+  filter: blur(1.5px);
+  opacity: 0;
+}
+
+/* ステージ中心の芯。リングの起点があることを示す小さな発光。 */
+.hero-ripple__core {
+  width: 52vmax;
+  height: 52vmax;
+  background: radial-gradient(
+    circle,
+    rgba(255, 196, 118, 0.5) 0%,
+    rgba(255, 138, 40, 0.24) 34%,
+    rgba(255, 110, 20, 0.08) 58%,
+    transparent 72%
+  );
+  filter: blur(6px);
+}
+
 /* ---------- ハンドオフ位置合わせ (?heroCalibration=1 のときだけ) ---------- */
 
 /*
@@ -2250,10 +2335,10 @@ main {
 
 /* 台座だけは金属の非発光物。screenだと暗部が浮くので通常合成にする。 */
 .hero-layer--platform {
-  left: 73%;
+  left: 76%;
   top: 83%;
   z-index: 6;
-  width: 45%;
+  width: 42%;
   translate: -50% -50%;
   mix-blend-mode: normal;
 }
@@ -3264,7 +3349,8 @@ main {
   */
   .hero-detail-layer,
   .hero-mascot-layer,
-  .hero-foreground-layer {
+  .hero-foreground-layer,
+  .hero-ripple {
     left: calc((100vw - var(--hero-world-width)) * 0.83);
   }
 
