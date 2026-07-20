@@ -9,6 +9,10 @@
 CLAUDE.local.md
 .claude/settings.local.json
 
+# 作業指示のメモ（成果物だけをリポジトリに残す）
+td.md
+feed.md
+
 # 依存パッケージ・ビルド成果物（package-lock.jsonから再現可能）
 node_modules/
 dist/
