@@ -17,12 +17,7 @@ const mainStyles = readFileSync(
 );
 const worksFlightStyles = mainStyles.slice(
   mainStyles.indexOf("/* ---------- システム完成→飛行→制作実績 ---------- */"),
-  mainStyles.indexOf(
-    "/* ---------- 通常セクション",
-    mainStyles.indexOf(
-      "/* ---------- システム完成→飛行→制作実績 ---------- */",
-    ),
-  ),
+  mainStyles.indexOf("/* ---------- 通常セクション", mainStyles.indexOf("/* ---------- システム完成→飛行→制作実績 ---------- */")),
 );
 
 describe("ページ共通UI", () => {
@@ -65,7 +60,9 @@ describe("ページ共通UI", () => {
   });
 
   it("ヒアリング導線にシーン内の着地進捗を指定する", () => {
-    expect(pageHtml).toMatch(/href="#studio"[^>]+data-scene-progress="0\.08"/);
+    expect(pageHtml).toMatch(
+      /href="#studio"[^>]+data-scene-progress="0\.08"/,
+    );
   });
 
   it("静的表示でもStudioをヒアリングシーンとして識別できる", () => {
@@ -100,9 +97,15 @@ describe("モーション低減表示", () => {
   });
 
   it("静的ヒアリングでは共通マスコット・吹き出し・チャット全文を表示する", () => {
-    expect(mainStyles).toContain("body.reduced-motion .studio-mascot-position");
-    expect(mainStyles).toContain('body.reduced-motion [data-view="hearing"]');
-    expect(mainStyles).toContain("body.reduced-motion .chat__bubble");
+    expect(mainStyles).toContain(
+      "body.reduced-motion .studio-mascot-position",
+    );
+    expect(mainStyles).toContain(
+      'body.reduced-motion [data-view="hearing"]',
+    );
+    expect(mainStyles).toContain(
+      "body.reduced-motion .chat__bubble",
+    );
     expect(mainStyles).toMatch(
       /body\.reduced-motion \.studio-mascot-speech[\s\S]*?filter:\s*none\s*!important/,
     );
@@ -117,7 +120,9 @@ describe("Hero・追加動画・ヒアリング統合契約", () => {
     expect(pageHtml).toContain(
       'href="/assets/hero/hero-mascot-idle-alpha.png"',
     );
-    expect(pageHtml).toContain('src="/assets/hero/hero-background.webp"');
+    expect(pageHtml).toContain(
+      'src="/assets/hero/hero-idle-background.png"',
+    );
     expect(pageHtml).toMatch(
       /class="hero-idle-mascot js-hero-idle-mascot"[\s\S]*?hero-idle-mascot__shadow[\s\S]*?hero-idle-mascot__jump[\s\S]*?hero-idle-mascot__image/,
     );
@@ -138,26 +143,21 @@ describe("Hero・追加動画・ヒアリング統合契約", () => {
   });
 
   it("自動再生しない2本のスクラブ動画を同じカメラ内に持つ", () => {
-    expect(
-      pageHtml.match(/<video[\s\S]*?class="[^"]*js-scrub-video/g),
-    ).toHaveLength(2);
+    expect(pageHtml.match(/<video[\s\S]*?class="[^"]*js-scrub-video/g)).toHaveLength(2);
     expect(pageHtml.match(/<video[\s\S]*?\smuted(?:\s|>)/g)).toHaveLength(3);
-    expect(pageHtml.match(/<video[\s\S]*?\splaysinline(?:\s|>)/g)).toHaveLength(
-      3,
-    );
+    expect(pageHtml.match(/<video[\s\S]*?\splaysinline(?:\s|>)/g)).toHaveLength(3);
     expect(pageHtml.match(/preload="auto"/g)).toHaveLength(3);
     expect(
       pageHtml.match(/<video[\s\S]*?width="1280"[\s\S]*?height="720"/g),
     ).toHaveLength(3);
     expect(pageHtml).toContain(
-      // posterは抽出した動画先頭フレーム。実際に最初に描かれる絵と一致させる。
-      'poster="/assets/hero/hero-video-first-frame.webp"',
+      'poster="/assets/portal-tunnel/mascot-portal-tunnel-poster.jpg"',
     );
     expect(pageHtml).toContain(
       'poster="/assets/portal-arrival/mascot-tunnel-coding-poster.jpg"',
     );
     expect(pageHtml).toMatch(
-      /rel="preload"[\s\S]*?as="image"[\s\S]*?href="\/assets\/hero\/hero-video-first-frame\.webp"/,
+      /rel="preload"[\s\S]*?as="image"[\s\S]*?href="\/assets\/portal-tunnel\/mascot-portal-tunnel-poster\.jpg"/,
     );
     expect(pageHtml).toContain(
       'data-src="/assets/portal-tunnel/mascot-portal-tunnel-scroll.mp4"',
@@ -232,7 +232,9 @@ describe("Hero・追加動画・ヒアリング統合契約", () => {
     expect(mainSource).toContain(
       "applyMascotHandoff(beforeStudio ? handoffMorph : 1)",
     );
-    expect(mainSource).toMatch(/const introOpacity =\s*beforeStudio\s*\?/);
+    expect(mainSource).toMatch(
+      /const introOpacity =\s*beforeStudio\s*\?/,
+    );
     expect(mainSource).not.toContain("arrivalMascot.style.transform");
     expect(mainSource).not.toContain("studioDeparture");
     expect(mainStyles).toMatch(/\.studio-mascot-position[\s\S]*?z-index:\s*70/);
@@ -240,16 +242,16 @@ describe("Hero・追加動画・ヒアリング統合契約", () => {
   });
 
   it("共通吹き出しを1個だけ持ち、idle・reaction・speechを別timelineで破棄する", () => {
-    expect(
-      pageHtml.match(/class="studio-mascot-speech js-studio-mascot-speech"/g),
-    ).toHaveLength(1);
+    expect(pageHtml.match(/class="studio-mascot-speech js-studio-mascot-speech"/g)).toHaveLength(1);
     expect(pageHtml.match(/class="js-studio-speech-text"/g)).toHaveLength(1);
     expect(pageHtml).toContain("お話を聞かせてください！");
     expect(studioMascotSource).toContain("mascotIdleTimeline");
     expect(studioMascotSource).toContain("speechBubbleTimeline");
     expect(studioMascotSource).toContain("mascotReactionTimeline");
     expect(studioMascotSource).toContain("timeline.kill()");
-    expect(studioSource).toContain("onLeave: () => mascot.setVisible(true)");
+    expect(studioSource).toContain(
+      "onLeave: () => mascot.setVisible(true)",
+    );
     expect(studioSource).toContain("setMascotVisible");
     expect(studioSource).toContain(
       "onEnterBack: () => mascot.setVisible(true)",
@@ -366,26 +368,14 @@ describe("システム完成から制作実績への飛行遷移", () => {
   });
 
   it("既存デザインの通過用4枚と、2枚ずつの制作実績1・2を別レイヤーで管理する", () => {
-    // タグと属性の間は整形で改行されうるため、クラス名の出現数で数える
-    expect(pageHtml.match(/js-works-flight-pass-card/g)).toHaveLength(4);
-    // 末尾のクォートまで見て、コンテナ側の js-works-flight-cards と区別する
-    expect(pageHtml.match(/js-works-flight-card"/g)).toHaveLength(4);
-    expect(pageHtml.match(/class="work-card[ "]/g)).toHaveLength(8);
-    expect(
-      pageHtml.match(/works-flight-pass-card[\s\S]*?work-card__thumb--[a-d]/g),
-    ).toHaveLength(4);
+    expect(pageHtml.match(/<article class="work-card works-flight-pass-card js-works-flight-pass-card/g)).toHaveLength(4);
+    expect(pageHtml.match(/<article class="work-card js-works-flight-card"/g)).toHaveLength(4);
+    expect(pageHtml.match(/<article class="work-card/g)).toHaveLength(8);
+    expect(pageHtml.match(/works-flight-pass-card[\s\S]*?work-card__thumb--[a-d]/g)).toHaveLength(4);
     expect(pageHtml).not.toContain("AI AUTOMATION");
     expect(pageHtml).not.toContain("RAG SEARCH");
-    expect(
-      pageHtml.match(
-        /<h2 class="works-flight-copy__title"[^>]*>\s*制作実績 01\s*<\/h2>/g,
-      ),
-    ).toHaveLength(1);
-    expect(
-      pageHtml.match(
-        /<h2 class="works-flight-copy__title"[^>]*>\s*制作実績 02\s*<\/h2>/g,
-      ),
-    ).toHaveLength(1);
+    expect(pageHtml.match(/<h2 class="works-flight-copy__title"[^>]*>制作実績 01<\/h2>/g)).toHaveLength(1);
+    expect(pageHtml.match(/<h2 class="works-flight-copy__title"[^>]*>制作実績 02<\/h2>/g)).toHaveLength(1);
     expect(pageHtml.match(/data-works-page="one"/g)).toHaveLength(1);
     expect(pageHtml.match(/data-works-page="two"/g)).toHaveLength(1);
     const firstGroup = pageHtml.match(
@@ -403,12 +393,7 @@ describe("システム完成から制作実績への飛行遷移", () => {
   });
 
   it("旧紫トンネルを制作実績遷移だけから除去し、Heroトンネルは残す", () => {
-    for (const source of [
-      pageHtml,
-      mainSource,
-      mainStyles,
-      worksFlightSource,
-    ]) {
+    for (const source of [pageHtml, mainSource, mainStyles, worksFlightSource]) {
       expect(source).not.toContain("scene-works-tunnel");
       expect(source).not.toContain("WorksTunnel");
       expect(source).not.toContain("TunnelRenderer");
@@ -438,15 +423,11 @@ describe("システム完成から制作実績への飛行遷移", () => {
       /\.works-flight-stage\s*\{[\s\S]*?position:\s*sticky[\s\S]*?height:\s*100svh/,
     );
     expect(mainStyles).toMatch(/\.works-flight-effects[\s\S]*?z-index:\s*8/);
-    expect(mainStyles).toMatch(
-      /\.works-flight-mascot-layer[\s\S]*?z-index:\s*25/,
-    );
+    expect(mainStyles).toMatch(/\.works-flight-mascot-layer[\s\S]*?z-index:\s*25/);
     expect(mainStyles).toMatch(
       /\.works-flight-pass-layer\s*\{[\s\S]*?z-index:\s*20[\s\S]*?width:\s*100vw[\s\S]*?height:\s*100svh/,
     );
-    expect(mainStyles).toMatch(
-      /\.works-flight-final-layer[\s\S]*?z-index:\s*24/,
-    );
+    expect(mainStyles).toMatch(/\.works-flight-final-layer[\s\S]*?z-index:\s*24/);
     expect(mainStyles).toMatch(/\.works-flight-copy[\s\S]*?z-index:\s*30/);
     expect(mainStyles).toMatch(
       /\.works-flight-cards\s*\{[\s\S]*?left:\s*50%[\s\S]*?width:\s*min\(80vw, 1160px\)[\s\S]*?transform:\s*translateX\(-50%\)/,

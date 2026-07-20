@@ -21,14 +21,10 @@ describe("Hero待機素材", () => {
     expect(info.colorType).toBe(6);
   });
 
-  it("待機中に動画内マスコットを隠す背景プレートを持つ", () => {
-    // 焼き込み1枚絵をやめ分解レイヤーへ移行したため、背景はWebPになった。
-    // 詳細な検証は heroLayerContract.test.ts が担う。
-    const bytes = readFileSync(
-      new URL("../../public/assets/hero/hero-background.webp", import.meta.url),
-    );
-    expect(bytes.subarray(0, 4).toString("ascii")).toBe("RIFF");
-    expect(bytes.subarray(8, 12).toString("ascii")).toBe("WEBP");
-    expect(bytes.length).toBeGreaterThan(1024);
+  it("待機中に動画内マスコットを隠す高解像度背景プレートを持つ", () => {
+    const info = pngInfo("../../public/assets/hero/hero-idle-background.png");
+    expect(info.signature).toBe("PNG");
+    expect(info.width).toBeGreaterThanOrEqual(1200);
+    expect(info.height).toBeGreaterThanOrEqual(675);
   });
 });

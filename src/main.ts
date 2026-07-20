@@ -3,7 +3,6 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { prepareArrivalImages } from "./scenes/arrivalAssetLoader";
-import { initHeroCalibration } from "./scenes/heroCalibration";
 import { initIntroScene } from "./scenes/intro";
 import {
   TRANSITION_CONFIG,
@@ -415,10 +414,6 @@ async function main(): Promise<void> {
     document.body.dataset.portalAssets = "ready";
     document.body.dataset.portalMedia = "ready";
 
-    // 位置合わせモードは演出を組み立てる前に有効化し、静止した姿勢で比較する
-    const calibration = initHeroCalibration();
-    if (calibration) cleanups.push(calibration.destroy);
-
     const veil = createVeil();
     cleanups.push(veil.destroy);
 
@@ -445,7 +440,9 @@ async function main(): Promise<void> {
     cleanups.push(studio.destroy);
     worksFlight = initWorksFlightScene((progress) => {
       if (!worksFlight || !studio) return;
-      studio.setMascotVisible(progress < WORKS_FLIGHT_CONFIG.mascotSwapEnd);
+      studio.setMascotVisible(
+        progress < WORKS_FLIGHT_CONFIG.mascotSwapEnd,
+      );
       const sceneId =
         progress < WORKS_FLIGHT_CONFIG.prepareEnd ? "build" : "works";
       indicator.setScene(sceneId);

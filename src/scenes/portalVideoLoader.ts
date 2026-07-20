@@ -5,38 +5,6 @@ export interface LoadablePortalVideo extends EventTarget {
   readonly duration: number;
   readonly error: { readonly code: number } | null;
   load(): void;
-  /** 実DOMだけが持つ。テスト用のモックでは省略できるよう任意にしている。 */
-  currentTime?: number;
-  requestVideoFrameCallback?(callback: () => void): number;
-}
-
-/** 最初のフレーム描画を待つ上限。これを超えたら待たずに進む。 */
-const FIRST_FRAME_TIMEOUT_MS = 400;
-
-/**
- * 先頭フレームが実際に描画可能になるまで待つ。
- * readyStateがcanplayでも、最初のフレームが出る前に静止レイヤーを
- * 消すと一瞬黒が覗く。ハンドオフの基準も0秒の絵なので、ここで
- * currentTimeを0へ戻しておく。
- */
-function waitForFirstFrame(video: LoadablePortalVideo): Promise<void> {
-  if (typeof video.requestVideoFrameCallback !== "function") {
-    return Promise.resolve();
-  }
-  if (typeof video.currentTime === "number" && video.currentTime !== 0) {
-    video.currentTime = 0;
-  }
-  return new Promise<void>((resolve) => {
-    let done = false;
-    const finish = () => {
-      if (done) return;
-      done = true;
-      resolve();
-    };
-    video.requestVideoFrameCallback!(finish);
-    // seekが起きない場合はコールバックが来ないため、待ち続けない
-    setTimeout(finish, FIRST_FRAME_TIMEOUT_MS);
-  });
 }
 
 export interface PreparePortalVideoOptions {
@@ -55,16 +23,14 @@ export function preparePortalVideo(
 ): Promise<number> {
   if (video.error) {
     return Promise.reject(
-      new Error(
-        `ポータル動画を読み込めませんでした (code: ${video.error.code})`,
-      ),
+      new Error(`ポータル動画を読み込めませんでした (code: ${video.error.code})`),
     );
   }
   if (
     video.readyState >= MEDIA_HAVE_FUTURE_DATA &&
     validDuration(video.duration)
   ) {
-    return waitForFirstFrame(video).then(() => video.duration);
+    return Promise.resolve(video.duration);
   }
   if (options.signal?.aborted) {
     return Promise.reject(new Error("ポータル動画の読み込みを中断しました"));
@@ -86,8 +52,7 @@ export function preparePortalVideo(
       if (settled) return;
       settled = true;
       cleanup();
-      // 最初のフレームが描けるまでは静止レイヤーを消させない
-      void waitForFirstFrame(video).then(() => resolve(duration));
+      resolve(duration);
     };
 
     const fail = (error: Error) => {

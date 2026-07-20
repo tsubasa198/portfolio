@@ -2,11 +2,12 @@
 
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { initHeroIdleSettle } from "./heroIdleSettle";
-import { initHeroRipple } from "./heroRipple";
 import { IntegratedVideoScrubber } from "./integratedVideoScrub";
 import { PortalTunnelCanvas } from "./portalTunnelCanvas";
-import { TRANSITION_CONFIG, portalPhaseAt } from "./portalTransitionConfig";
+import {
+  TRANSITION_CONFIG,
+  portalPhaseAt,
+} from "./portalTransitionConfig";
 import {
   createPortalTransitionTimeline,
   type PortalTimelineElements,
@@ -40,7 +41,10 @@ export function initIntroScene(onUpdate?: () => void): IntroScene {
     ".js-portal-tunnel-canvas",
     section,
   );
-  const heroCopy = requireElement<HTMLElement>('[data-copy="hero"]', section);
+  const heroCopy = requireElement<HTMLElement>(
+    '[data-copy="hero"]',
+    section,
+  );
   const nextPreview = section.querySelector<HTMLElement>(
     ".js-portal-next-preview",
   );
@@ -55,10 +59,6 @@ export function initIntroScene(onUpdate?: () => void): IntroScene {
   );
   const heroDetailLayer = requireElement<HTMLElement>(
     ".js-hero-detail-layer",
-    section,
-  );
-  const heroForegroundLayer = requireElement<HTMLElement>(
-    ".js-hero-foreground-layer",
     section,
   );
 
@@ -78,7 +78,6 @@ export function initIntroScene(onUpdate?: () => void): IntroScene {
     heroIdleBackground,
     heroIdleMascot,
     heroDetailLayer,
-    heroForegroundLayer,
     heroCopy,
     nextPreview,
     scrollHint,
@@ -86,18 +85,6 @@ export function initIntroScene(onUpdate?: () => void): IntroScene {
 
   const renderer = new PortalTunnelCanvas(canvas);
   const timeline = createPortalTransitionTimeline(elements);
-  /*
-    待機アニメーションはスクロールが始まった時点で基準姿勢へ寄せる。
-    姿勢が揃う前にalphaを入れ替えると、ジャンプ途中のマスコットや
-    浮いた状態のパネルが動画の姿勢へ瞬間移動して見える。
-  */
-  const idleSettle = initHeroIdleSettle(section);
-  /*
-    静止レイヤーと動画の素材差を光で覆う中継演出。
-    位置を詰めても発光や粒子の違いは残るので、切り替えの瞬間に
-    ステージ中心から波紋を広げて視線をそちらへ移す。
-  */
-  const ripple = initHeroRipple(section);
   let targetProgress = 0;
   let visualProgress = 0;
   let sceneVisible = true;
@@ -111,8 +98,6 @@ export function initIntroScene(onUpdate?: () => void): IntroScene {
     maxDeltaMs: TRANSITION_CONFIG.videoMaxDeltaMs,
     onUpdate: (progress, times) => {
       visualProgress = progress;
-      idleSettle.setProgress(visualProgress);
-      ripple?.setProgress(visualProgress);
       timeline.progress(visualProgress);
       section.dataset.portalVisualProgress = visualProgress.toFixed(4);
       section.dataset.portalVideoTime = times.existingTime.toFixed(3);
@@ -201,8 +186,6 @@ export function initIntroScene(onUpdate?: () => void): IntroScene {
     trigger.kill();
     timeline.kill();
     scrubber.destroy();
-    idleSettle.destroy();
-    ripple?.destroy();
     gsap.ticker.remove(renderTick);
     document.removeEventListener("visibilitychange", handleVisibilityChange);
     visibilityObserver.disconnect();
@@ -218,8 +201,7 @@ export function initIntroScene(onUpdate?: () => void): IntroScene {
     visualProgress: () => visualProgress,
     activeSceneId: () => {
       if (visualProgress < TRANSITION_CONFIG.heroJourneyEnd) return "hero";
-      if (visualProgress < TRANSITION_CONFIG.studioPreludeStart)
-        return "tunnel";
+      if (visualProgress < TRANSITION_CONFIG.studioPreludeStart) return "tunnel";
       return "hearing";
     },
     destroy,
