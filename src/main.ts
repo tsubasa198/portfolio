@@ -23,6 +23,7 @@ import {
   initReveals,
   initSceneNavigation,
   initSplitTitles,
+  observeSceneDormancy,
   observeStaticSections,
 } from "./ui/chrome";
 import { createVeil, type Veil } from "./ui/veil";
@@ -440,9 +441,7 @@ async function main(): Promise<void> {
     cleanups.push(studio.destroy);
     worksFlight = initWorksFlightScene((progress) => {
       if (!worksFlight || !studio) return;
-      studio.setMascotVisible(
-        progress < WORKS_FLIGHT_CONFIG.mascotSwapEnd,
-      );
+      studio.setMascotVisible(progress < WORKS_FLIGHT_CONFIG.mascotSwapEnd);
       const sceneId =
         progress < WORKS_FLIGHT_CONFIG.prepareEnd ? "build" : "works";
       indicator.setScene(sceneId);
@@ -473,6 +472,7 @@ async function main(): Promise<void> {
     initProgressBar();
     initReveals();
     observeStaticSections(indicator);
+    cleanups.push(observeSceneDormancy());
   } catch (error) {
     cleanup();
     // 演出の初期化に失敗してもposterと既存コンテンツは読める状態を保つ。

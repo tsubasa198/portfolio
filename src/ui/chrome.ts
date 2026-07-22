@@ -195,6 +195,35 @@ export function observeStaticSections(
   sections.forEach((el) => observer.observe(el));
 }
 
+/**
+ * 画面から完全に外れたスクラブセクションへ data-scene-dormant を付ける。
+ * CSS側でそのセクション内のアニメーションを止め、合成レイヤーを解放する。
+ * 重さの主因はGPU/合成だったため、見えていないセクションの描画を止めるのが
+ * 最も効く。rootMarginで画面の手前に来た時点で起こし、再開時のちらつきを防ぐ。
+ */
+export function observeSceneDormancy(): () => void {
+  const sections = [
+    ...document.querySelectorAll<HTMLElement>(
+      ".js-intro, .js-studio, .js-works-flight",
+    ),
+  ];
+  if (sections.length === 0) return () => {};
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        const target = entry.target as HTMLElement;
+        // 交差していない = 画面外。休眠させる。
+        target.toggleAttribute("data-scene-dormant", !entry.isIntersecting);
+      }
+    },
+    // 画面の上下に半画面ぶんの余白を取り、見える前に起こしておく
+    { rootMargin: "50% 0px 50% 0px" },
+  );
+  sections.forEach((el) => observer.observe(el));
+  return () => observer.disconnect();
+}
+
 export interface DebugHud {
   update(scene: string, progress: number): void;
 }
