@@ -2,6 +2,7 @@ import "./styles/main.css";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
+import { sceneScrollTop } from "./core/navigationState";
 import { prepareArrivalImages } from "./scenes/arrivalAssetLoader";
 import { initIntroScene } from "./scenes/intro";
 import {
@@ -271,7 +272,55 @@ function initStageDirector(
   };
 }
 
+/**
+ * 読み込み時のスクロール位置を決める。
+ * - ハッシュがスクラブシーンを指す場合、そのシーンの見せたい進捗へ着地する
+ *   (例: #works は制作実績カードが並ぶ地点)。ナビと同じ data-scene-progress を
+ *   出所にするので、着地点が一致する。
+ * - それ以外(ハッシュなし/リロード)はファーストビューの先頭から始める。
+ */
+function applyInitialScroll(reducedMotion: boolean): void {
+  const hash = window.location.hash;
+  const scrollTop = (top: number) => window.scrollTo(0, top);
+
+  if (!hash || hash === "#hero" || hash === "#") {
+    scrollTop(0);
+    return;
+  }
+  const target = document.getElementById(hash.slice(1));
+  if (!target) {
+    scrollTop(0);
+    return;
+  }
+  // ハッシュ先へ着地進捗を指定したナビリンクがあれば、それに合わせる
+  const link = document.querySelector<HTMLElement>(
+    `a[href="${hash}"][data-scene-progress]`,
+  );
+  if (!link) {
+    // 通常セクション(スキル/連絡など)はそのまま先頭へ
+    scrollTop(target.offsetTop);
+    return;
+  }
+  const progress = reducedMotion
+    ? 0
+    : Number(link.dataset.sceneProgress ?? "0");
+  scrollTop(
+    sceneScrollTop(
+      target.offsetTop,
+      target.offsetHeight,
+      window.innerHeight,
+      progress,
+    ),
+  );
+}
+
 async function main(): Promise<void> {
+  // リロード時にブラウザが前回のスクロール位置を復元しないようにする。
+  // 復元されると、途中から始まってスクラブ演出の途中で固まって見える。
+  if ("scrollRestoration" in window.history) {
+    window.history.scrollRestoration = "manual";
+  }
+
   const cleanups: Array<() => void> = [];
   let cleanupRegistered = false;
 
@@ -385,6 +434,7 @@ async function main(): Promise<void> {
       initProgressBar();
       initReveals();
       observeStaticSections(indicator, true);
+      applyInitialScroll(true);
       return;
     }
 
@@ -431,6 +481,9 @@ async function main(): Promise<void> {
     cleanups.push(intro.destroy);
     studio = initStudioScene(() => {
       if (!studio || !intro) return;
+      // 制作実績シーンが始まっていたら、インジケータはそちらへ譲る。
+      // 瞬間移動での着地時に、境界でstudioが「プロセス」を上書きするのを防ぐ。
+      if (worksFlight && worksFlight.progress() > 0) return;
       const beforeHearing =
         studio.progress() <= 0 &&
         intro.visualProgress() < TRANSITION_CONFIG.studioPreludeStart;
@@ -473,6 +526,11 @@ async function main(): Promise<void> {
     initReveals();
     observeStaticSections(indicator);
     cleanups.push(observeSceneDormancy());
+
+    // レイアウトとScrollTriggerが確定してから、ハッシュに応じた初期位置へ移す。
+    // 詳細ページから #works で戻った場合は制作実績の地点へ、それ以外は先頭へ。
+    ScrollTrigger.refresh();
+    applyInitialScroll(reducedMotion);
   } catch (error) {
     cleanup();
     // 演出の初期化に失敗してもposterと既存コンテンツは読める状態を保つ。

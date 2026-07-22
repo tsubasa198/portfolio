@@ -127,7 +127,13 @@
           data-scene-link="hearing"
           >プロセス</a
         >
-        <a class="nav-pill" href="#works" data-scene-link="works">実績</a>
+        <a
+          class="nav-pill"
+          href="#works"
+          data-scene-progress="0.82"
+          data-scene-link="works"
+          >実績</a
+        >
         <a class="nav-pill" href="#skills" data-scene-link="skills">スキル</a>
         <a class="nav-pill" href="#contact" data-scene-link="contact">連絡</a>
       </nav>
@@ -149,13 +155,12 @@
         hidden
       >
         <a href="#hero" data-scene-link="hero">はじまり</a>
-        <a
-          href="#studio"
-          data-scene-progress="0.08"
-          data-scene-link="hearing"
+        <a href="#studio" data-scene-progress="0.08" data-scene-link="hearing"
           >プロセス</a
         >
-        <a href="#works" data-scene-link="works">実績</a>
+        <a href="#works" data-scene-progress="0.82" data-scene-link="works"
+          >実績</a
+        >
         <a href="#skills" data-scene-link="skills">スキル</a>
         <a href="#contact" data-scene-link="contact">連絡</a>
       </nav>
@@ -168,11 +173,7 @@
 
     <main>
       <!-- ============ シーン01-02: Hero → ポータル・トンネル (pin + scrub) ============ -->
-      <section
-        class="scene-intro js-intro"
-        id="hero"
-        data-static-scene="hero"
-      >
+      <section class="scene-intro js-intro" id="hero" data-static-scene="hero">
         <div class="stage js-intro-stage">
           <div class="intro-visual js-intro-visual">
             <div
@@ -208,13 +209,27 @@
               />
 
               <div class="hero-detail-layer js-hero-detail-layer">
-                <span class="hero-detail-layer__orbit hero-detail-layer__orbit--a"></span>
-                <span class="hero-detail-layer__orbit hero-detail-layer__orbit--b"></span>
-                <span class="hero-detail-layer__panel hero-detail-layer__panel--a"></span>
-                <span class="hero-detail-layer__panel hero-detail-layer__panel--b"></span>
-                <span class="hero-detail-layer__particle hero-detail-layer__particle--a"></span>
-                <span class="hero-detail-layer__particle hero-detail-layer__particle--b"></span>
-                <span class="hero-detail-layer__particle hero-detail-layer__particle--c"></span>
+                <span
+                  class="hero-detail-layer__orbit hero-detail-layer__orbit--a"
+                ></span>
+                <span
+                  class="hero-detail-layer__orbit hero-detail-layer__orbit--b"
+                ></span>
+                <span
+                  class="hero-detail-layer__panel hero-detail-layer__panel--a"
+                ></span>
+                <span
+                  class="hero-detail-layer__panel hero-detail-layer__panel--b"
+                ></span>
+                <span
+                  class="hero-detail-layer__particle hero-detail-layer__particle--a"
+                ></span>
+                <span
+                  class="hero-detail-layer__particle hero-detail-layer__particle--b"
+                ></span>
+                <span
+                  class="hero-detail-layer__particle hero-detail-layer__particle--c"
+                ></span>
               </div>
 
               <div class="hero-idle-mascot js-hero-idle-mascot">
@@ -321,10 +336,15 @@
                 aria-live="polite"
                 aria-atomic="true"
               >
-                <span class="js-studio-speech-text">お話を聞かせてください！</span>
+                <span class="js-studio-speech-text"
+                  >お話を聞かせてください！</span
+                >
               </div>
             </div>
-            <div class="studio-mascot-shadow js-studio-mascot-shadow" aria-hidden="true"></div>
+            <div
+              class="studio-mascot-shadow js-studio-mascot-shadow"
+              aria-hidden="true"
+            ></div>
             <div class="studio-mascot-idle js-studio-mascot-idle">
               <div class="studio-mascot-reaction js-studio-mascot-reaction">
                 <div class="studio-mascot-sway js-studio-mascot-sway">
@@ -357,170 +377,173 @@
             <div class="macbook js-macbook" aria-hidden="true">
               <div class="macbook__lid js-macbook-lid">
                 <div class="macbook__screen">
-                <!-- 03 ヒアリング: チャットUI -->
-                <div class="screen-view js-view" data-view="hearing">
-                  <div class="screen-view__titlebar">
-                    ヒアリングメモ — クライアント様
+                  <!-- 03 ヒアリング: チャットUI -->
+                  <div class="screen-view js-view" data-view="hearing">
+                    <div class="screen-view__titlebar">
+                      ヒアリングメモ — クライアント様
+                    </div>
+                    <div class="chat">
+                      <p class="chat__bubble chat__bubble--client js-chat-item">
+                        毎月の請求書処理に3日かかっていて、担当者が疲弊しています…
+                      </p>
+                      <p class="chat__bubble chat__bubble--me js-chat-item">
+                        その業務、AIで自動化できます。現在のフローを見せていただけますか?
+                      </p>
+                      <p class="chat__bubble chat__bubble--client js-chat-item">
+                        Excelとメール、PDFがバラバラに管理されている状態です。
+                      </p>
+                      <p class="chat__bubble chat__bubble--me js-chat-item">
+                        承知しました。まず現状の業務フローを一緒に整理しましょう。
+                      </p>
+                    </div>
                   </div>
-                  <div class="chat">
-                    <p class="chat__bubble chat__bubble--client js-chat-item">
-                      毎月の請求書処理に3日かかっていて、担当者が疲弊しています…
-                    </p>
-                    <p class="chat__bubble chat__bubble--me js-chat-item">
-                      その業務、AIで自動化できます。現在のフローを見せていただけますか?
-                    </p>
-                    <p class="chat__bubble chat__bubble--client js-chat-item">
-                      Excelとメール、PDFがバラバラに管理されている状態です。
-                    </p>
-                    <p class="chat__bubble chat__bubble--me js-chat-item">
-                      承知しました。まず現状の業務フローを一緒に整理しましょう。
-                    </p>
-                  </div>
-                </div>
 
-                <!-- 04 要件定義: ドキュメントUI -->
-                <div class="screen-view js-view" data-view="requirements">
-                  <div class="screen-view__titlebar">
-                    要件定義書 v1.0 — 請求書処理自動化
+                  <!-- 04 要件定義: ドキュメントUI -->
+                  <div class="screen-view js-view" data-view="requirements">
+                    <div class="screen-view__titlebar">
+                      要件定義書 v1.0 — 請求書処理自動化
+                    </div>
+                    <div class="doc">
+                      <p class="doc__heading js-doc-line">1. 目的</p>
+                      <p class="doc__line js-doc-line">
+                        請求書処理の工数を月3日 → 半日に削減する
+                      </p>
+                      <p class="doc__heading js-doc-line">2. 機能要件</p>
+                      <p class="doc__line js-doc-line">
+                        ・PDF/メールから請求書データを自動抽出(LLM + OCR)
+                      </p>
+                      <p class="doc__line js-doc-line">
+                        ・抽出結果の検証と承認フロー
+                      </p>
+                      <p class="doc__line js-doc-line">
+                        ・会計システムへの自動登録
+                      </p>
+                      <p class="doc__heading js-doc-line">3. 非機能要件</p>
+                      <p class="doc__line js-doc-line">
+                        ・処理精度99%以上 / 個人情報の外部送信なし
+                      </p>
+                    </div>
                   </div>
-                  <div class="doc">
-                    <p class="doc__heading js-doc-line">1. 目的</p>
-                    <p class="doc__line js-doc-line">
-                      請求書処理の工数を月3日 → 半日に削減する
-                    </p>
-                    <p class="doc__heading js-doc-line">2. 機能要件</p>
-                    <p class="doc__line js-doc-line">
-                      ・PDF/メールから請求書データを自動抽出(LLM + OCR)
-                    </p>
-                    <p class="doc__line js-doc-line">
-                      ・抽出結果の検証と承認フロー
-                    </p>
-                    <p class="doc__line js-doc-line">
-                      ・会計システムへの自動登録
-                    </p>
-                    <p class="doc__heading js-doc-line">3. 非機能要件</p>
-                    <p class="doc__line js-doc-line">
-                      ・処理精度99%以上 / 個人情報の外部送信なし
-                    </p>
-                  </div>
-                </div>
 
-                <!-- 05 ワークフロー: ノード図 -->
-                <div class="screen-view js-view" data-view="workflow">
-                  <div class="screen-view__titlebar">
-                    workflow.builder — 自動化フロー
-                  </div>
-                  <div class="flow">
-                    <svg
-                      class="flow__lines js-flow-lines"
-                      viewBox="0 0 640 300"
-                      preserveAspectRatio="none"
-                      aria-hidden="true"
-                    >
-                      <path
-                        class="js-flow-path"
-                        d="M110 60 C 170 60, 170 60, 230 60"
-                      />
-                      <path
-                        class="js-flow-path"
-                        d="M350 60 C 410 60, 410 60, 470 60"
-                      />
-                      <path
-                        class="js-flow-path"
-                        d="M532 88 C 532 150, 480 204, 420 204"
-                      />
-                      <path
-                        class="js-flow-path"
-                        d="M284 204 C 254 204, 232 204, 200 204"
-                      />
-                    </svg>
-                    <div
-                      class="flow__node js-flow-node"
-                      style="--fx: 3%; --fy: 12%"
-                    >
-                      📩 メール受信<br /><span>Trigger</span>
+                  <!-- 05 ワークフロー: ノード図 -->
+                  <div class="screen-view js-view" data-view="workflow">
+                    <div class="screen-view__titlebar">
+                      workflow.builder — 自動化フロー
                     </div>
-                    <div
-                      class="flow__node js-flow-node"
-                      style="--fx: 36%; --fy: 12%"
-                    >
-                      🧠 LLM解析<br /><span>Claude API</span>
-                    </div>
-                    <div
-                      class="flow__node js-flow-node"
-                      style="--fx: 73%; --fy: 12%"
-                    >
-                      📄 データ抽出<br /><span>Structured Output</span>
-                    </div>
-                    <div
-                      class="flow__node js-flow-node"
-                      style="--fx: 45%; --fy: 60%"
-                    >
-                      ✅ 検証・承認<br /><span>Human in the loop</span>
-                    </div>
-                    <div
-                      class="flow__node js-flow-node"
-                      style="--fx: 6%; --fy: 60%"
-                    >
-                      💾 会計システム登録<br /><span>API連携</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 06 完成システム: 実際のWebアプリのデモ画面 -->
-                <div class="screen-view js-view" data-view="build">
-                  <div class="screen-view__titlebar">
-                    InvoiceAI — 請求書管理システム (デモ)
-                  </div>
-                  <div class="webapp">
-                    <aside class="webapp__sidebar">
-                      <p class="webapp__logo">📄 InvoiceAI</p>
-                      <p class="webapp__menu is-current">請求書一覧</p>
-                      <p class="webapp__menu">承認待ち</p>
-                      <p class="webapp__menu">レポート</p>
-                      <p class="webapp__menu">設定</p>
-                    </aside>
-                    <div class="webapp__main">
-                      <div class="webapp__header">
-                        <span class="webapp__status js-dash-status"
-                          >● AI自動取込 稼働中</span
-                        >
-                        <span class="webapp__count"
-                          >今月の自動処理
-                          <strong
-                            ><span class="js-counter" data-target="128">0</span
-                            >件</strong
-                          ></span
-                        >
+                    <div class="flow">
+                      <svg
+                        class="flow__lines js-flow-lines"
+                        viewBox="0 0 640 300"
+                        preserveAspectRatio="none"
+                        aria-hidden="true"
+                      >
+                        <path
+                          class="js-flow-path"
+                          d="M110 60 C 170 60, 170 60, 230 60"
+                        />
+                        <path
+                          class="js-flow-path"
+                          d="M350 60 C 410 60, 410 60, 470 60"
+                        />
+                        <path
+                          class="js-flow-path"
+                          d="M532 88 C 532 150, 480 204, 420 204"
+                        />
+                        <path
+                          class="js-flow-path"
+                          d="M284 204 C 254 204, 232 204, 200 204"
+                        />
+                      </svg>
+                      <div
+                        class="flow__node js-flow-node"
+                        style="--fx: 3%; --fy: 12%"
+                      >
+                        📩 メール受信<br /><span>Trigger</span>
                       </div>
-                      <div class="webapp__table">
-                        <div class="webapp__row webapp__row--head js-app-row">
-                          <span>取引先</span><span>金額</span><span>状態</span>
-                        </div>
-                        <div class="webapp__row js-app-row">
-                          <span>株式会社サンプル商事</span><span>¥318,000</span
-                          ><span class="badge badge--done">登録完了</span>
-                        </div>
-                        <div class="webapp__row js-app-row">
-                          <span>オフィス備品センター</span><span>¥42,900</span
-                          ><span class="badge badge--done">登録完了</span>
-                        </div>
-                        <div class="webapp__row js-app-row">
-                          <span>クラウド印刷サービス</span><span>¥86,500</span
-                          ><span class="badge badge--wait">承認待ち</span>
-                        </div>
-                        <div class="webapp__row js-app-row">
-                          <span>デザイン制作パートナー</span
-                          ><span>¥220,000</span
-                          ><span class="badge badge--ai">AI抽出中</span>
-                        </div>
+                      <div
+                        class="flow__node js-flow-node"
+                        style="--fx: 36%; --fy: 12%"
+                      >
+                        🧠 LLM解析<br /><span>Claude API</span>
                       </div>
-                      <div class="webapp__toast js-app-toast">
-                        📩 メールから新しい請求書を自動取込しました
+                      <div
+                        class="flow__node js-flow-node"
+                        style="--fx: 73%; --fy: 12%"
+                      >
+                        📄 データ抽出<br /><span>Structured Output</span>
+                      </div>
+                      <div
+                        class="flow__node js-flow-node"
+                        style="--fx: 45%; --fy: 60%"
+                      >
+                        ✅ 検証・承認<br /><span>Human in the loop</span>
+                      </div>
+                      <div
+                        class="flow__node js-flow-node"
+                        style="--fx: 6%; --fy: 60%"
+                      >
+                        💾 会計システム登録<br /><span>API連携</span>
                       </div>
                     </div>
                   </div>
-                </div>
+
+                  <!-- 06 完成システム: 実際のWebアプリのデモ画面 -->
+                  <div class="screen-view js-view" data-view="build">
+                    <div class="screen-view__titlebar">
+                      InvoiceAI — 請求書管理システム (デモ)
+                    </div>
+                    <div class="webapp">
+                      <aside class="webapp__sidebar">
+                        <p class="webapp__logo">📄 InvoiceAI</p>
+                        <p class="webapp__menu is-current">請求書一覧</p>
+                        <p class="webapp__menu">承認待ち</p>
+                        <p class="webapp__menu">レポート</p>
+                        <p class="webapp__menu">設定</p>
+                      </aside>
+                      <div class="webapp__main">
+                        <div class="webapp__header">
+                          <span class="webapp__status js-dash-status"
+                            >● AI自動取込 稼働中</span
+                          >
+                          <span class="webapp__count"
+                            >今月の自動処理
+                            <strong
+                              ><span class="js-counter" data-target="128"
+                                >0</span
+                              >件</strong
+                            ></span
+                          >
+                        </div>
+                        <div class="webapp__table">
+                          <div class="webapp__row webapp__row--head js-app-row">
+                            <span>取引先</span><span>金額</span
+                            ><span>状態</span>
+                          </div>
+                          <div class="webapp__row js-app-row">
+                            <span>株式会社サンプル商事</span
+                            ><span>¥318,000</span
+                            ><span class="badge badge--done">登録完了</span>
+                          </div>
+                          <div class="webapp__row js-app-row">
+                            <span>オフィス備品センター</span><span>¥42,900</span
+                            ><span class="badge badge--done">登録完了</span>
+                          </div>
+                          <div class="webapp__row js-app-row">
+                            <span>クラウド印刷サービス</span><span>¥86,500</span
+                            ><span class="badge badge--wait">承認待ち</span>
+                          </div>
+                          <div class="webapp__row js-app-row">
+                            <span>デザイン制作パートナー</span
+                            ><span>¥220,000</span
+                            ><span class="badge badge--ai">AI抽出中</span>
+                          </div>
+                        </div>
+                        <div class="webapp__toast js-app-toast">
+                          📩 メールから新しい請求書を自動取込しました
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="macbook__base"></div>
@@ -532,9 +555,7 @@
             <div class="scene-copy js-copy" data-copy="hearing">
               <p class="scene-copy__number">03 <span>/ 09</span></p>
               <p class="scene-copy__eyebrow">01 — HEARING</p>
-              <h2 class="scene-copy__title js-split">
-                現場の課題をヒアリング
-              </h2>
+              <h2 class="scene-copy__title js-split">現場の課題をヒアリング</h2>
               <p class="scene-copy__text">
                 課題は現場にあります。業務フローと痛みを丁寧にヒアリングし、AIで解くべき問題を見極めます。
               </p>
@@ -543,49 +564,43 @@
                 <span class="chip">課題定義</span>
               </div>
             </div>
-          <div class="scene-copy js-copy" data-copy="requirements">
-            <p class="scene-copy__number">04 <span>/ 09</span></p>
-            <p class="scene-copy__eyebrow">02 — REQUIREMENTS</p>
-            <h2 class="scene-copy__title js-split">
-              要件定義に落とし込む
-            </h2>
-            <p class="scene-copy__text">
-              ヒアリング内容を機能要件・非機能要件に整理。ゴールとスコープを明文化し、認識を揃えます。
-            </p>
-            <div class="scene-copy__chips">
-              <span class="chip">要件定義</span>
-              <span class="chip">スコープ設計</span>
+            <div class="scene-copy js-copy" data-copy="requirements">
+              <p class="scene-copy__number">04 <span>/ 09</span></p>
+              <p class="scene-copy__eyebrow">02 — REQUIREMENTS</p>
+              <h2 class="scene-copy__title js-split">要件定義に落とし込む</h2>
+              <p class="scene-copy__text">
+                ヒアリング内容を機能要件・非機能要件に整理。ゴールとスコープを明文化し、認識を揃えます。
+              </p>
+              <div class="scene-copy__chips">
+                <span class="chip">要件定義</span>
+                <span class="chip">スコープ設計</span>
+              </div>
             </div>
-          </div>
-          <div class="scene-copy js-copy" data-copy="workflow">
-            <p class="scene-copy__number">05 <span>/ 09</span></p>
-            <p class="scene-copy__eyebrow">03 — BUILD</p>
-            <h2 class="scene-copy__title js-split">
-              ワークフローを構築する
-            </h2>
-            <p class="scene-copy__text">
-              要件をノードに分解し、LLM・RAG・外部APIを組み合わせた自動化ワークフローとして実装します。
-            </p>
-            <div class="scene-copy__chips">
-              <span class="chip">Claude API</span>
-              <span class="chip">LangChain</span>
-              <span class="chip">n8n</span>
+            <div class="scene-copy js-copy" data-copy="workflow">
+              <p class="scene-copy__number">05 <span>/ 09</span></p>
+              <p class="scene-copy__eyebrow">03 — BUILD</p>
+              <h2 class="scene-copy__title js-split">ワークフローを構築する</h2>
+              <p class="scene-copy__text">
+                要件をノードに分解し、LLM・RAG・外部APIを組み合わせた自動化ワークフローとして実装します。
+              </p>
+              <div class="scene-copy__chips">
+                <span class="chip">Claude API</span>
+                <span class="chip">LangChain</span>
+                <span class="chip">n8n</span>
+              </div>
             </div>
-          </div>
-          <div class="scene-copy js-copy" data-copy="build">
-            <p class="scene-copy__number">06 <span>/ 09</span></p>
-            <p class="scene-copy__eyebrow">04 — LAUNCH</p>
-            <h2 class="scene-copy__title js-split">
-              システムを構築し完成
-            </h2>
-            <p class="scene-copy__text">
-              納品するのは「動くWebアプリ」。メール取込から会計登録まで、AIが自動で回し続けます。
-            </p>
-            <div class="scene-copy__chips">
-              <span class="chip">Webアプリ納品</span>
-              <span class="chip">自動連携</span>
+            <div class="scene-copy js-copy" data-copy="build">
+              <p class="scene-copy__number">06 <span>/ 09</span></p>
+              <p class="scene-copy__eyebrow">04 — LAUNCH</p>
+              <h2 class="scene-copy__title js-split">システムを構築し完成</h2>
+              <p class="scene-copy__text">
+                納品するのは「動くWebアプリ」。メール取込から会計登録まで、AIが自動で回し続けます。
+              </p>
+              <div class="scene-copy__chips">
+                <span class="chip">Webアプリ納品</span>
+                <span class="chip">自動連携</span>
+              </div>
             </div>
-          </div>
           </div>
         </div>
       </section>
@@ -598,14 +613,22 @@
         aria-labelledby="works-title works-title-secondary"
       >
         <div class="works-flight-stage js-works-flight-stage">
-          <div class="works-flight-backdrop js-works-flight-backdrop" aria-hidden="true">
+          <div
+            class="works-flight-backdrop js-works-flight-backdrop"
+            aria-hidden="true"
+          >
             <div class="works-flight-backdrop__grid"></div>
             <div class="works-flight-backdrop__amber"></div>
           </div>
 
-          <div class="works-flight-effects js-works-flight-effects" aria-hidden="true">
+          <div
+            class="works-flight-effects js-works-flight-effects"
+            aria-hidden="true"
+          >
             <div class="works-flight-effects__glow"></div>
-            <div class="works-flight-effects__rays works-flight-effects__rays--main">
+            <div
+              class="works-flight-effects__rays works-flight-effects__rays--main"
+            >
               <i style="--ray: 0"></i><i style="--ray: 1"></i>
               <i style="--ray: 2"></i><i style="--ray: 3"></i>
               <i style="--ray: 4"></i><i style="--ray: 5"></i>
@@ -615,7 +638,9 @@
               <i style="--ray: 12"></i><i style="--ray: 13"></i>
               <i style="--ray: 14"></i><i style="--ray: 15"></i>
             </div>
-            <div class="works-flight-effects__rays works-flight-effects__rays--detail"></div>
+            <div
+              class="works-flight-effects__rays works-flight-effects__rays--detail"
+            ></div>
             <div class="works-flight-effects__streaks">
               <i style="--streak: 0"></i><i style="--streak: 1"></i>
               <i style="--streak: 2"></i><i style="--streak: 3"></i>
@@ -636,7 +661,10 @@
             </div>
           </div>
 
-          <div class="works-flight-mascot-layer js-works-flight-mascot-layer" aria-hidden="true">
+          <div
+            class="works-flight-mascot-layer js-works-flight-mascot-layer"
+            aria-hidden="true"
+          >
             <video
               class="works-flight-mascot-video js-works-flight-mascot-video"
               muted
@@ -663,48 +691,27 @@
           <div class="works-flight-copy js-works-flight-copy">
             <p class="section__number">07 <span>/ 09</span></p>
             <p class="section__eyebrow">WORKS 01 / 02</p>
-            <h2 class="works-flight-copy__title" id="works-title">制作実績 01</h2>
+            <h2 class="works-flight-copy__title" id="works-title">
+              制作実績 01
+            </h2>
           </div>
 
-          <div class="works-flight-copy works-flight-copy--secondary js-works-flight-copy-secondary">
+          <div
+            class="works-flight-copy works-flight-copy--secondary js-works-flight-copy-secondary"
+          >
             <p class="section__number">07 <span>/ 09</span></p>
             <p class="section__eyebrow">WORKS 02 / 02</p>
-            <h2 class="works-flight-copy__title" id="works-title-secondary">制作実績 02</h2>
+            <h2 class="works-flight-copy__title" id="works-title-secondary">
+              制作実績 02
+            </h2>
           </div>
 
-          <div class="works-flight-pass-layer js-works-flight-pass-layer" aria-hidden="true">
-            <article class="work-card works-flight-pass-card js-works-flight-pass-card">
-              <div class="work-card__thumb work-card__thumb--a"></div>
-              <h3>請求書処理自動化システム</h3>
-              <p>LLM+OCRで請求書データを自動抽出。月3日の作業を半日に短縮。</p>
-              <div class="scene-copy__chips"><span class="chip">Claude API</span><span class="chip">n8n</span></div>
-            </article>
-            <article class="work-card works-flight-pass-card js-works-flight-pass-card">
-              <div class="work-card__thumb work-card__thumb--b"></div>
-              <h3>社内ナレッジRAGボット</h3>
-              <p>散在する社内ドキュメントを横断検索できるAIチャットボット。</p>
-              <div class="scene-copy__chips"><span class="chip">RAG</span><span class="chip">ベクトルDB</span></div>
-            </article>
-            <article class="work-card works-flight-pass-card js-works-flight-pass-card">
-              <div class="work-card__thumb work-card__thumb--c"></div>
-              <h3>SNS運用自動化パイプライン</h3>
-              <p>投稿生成から予約投稿・効果分析までを自動化するワークフロー。</p>
-              <div class="scene-copy__chips"><span class="chip">LLM</span><span class="chip">自動化</span></div>
-            </article>
-            <article class="work-card works-flight-pass-card js-works-flight-pass-card">
-              <div class="work-card__thumb work-card__thumb--d"></div>
-              <h3>議事録・レポート自動生成AI</h3>
-              <p>会議音声から議事録と週次レポートを自動生成。共有まで自動化。</p>
-              <div class="scene-copy__chips"><span class="chip">音声認識</span><span class="chip">文書生成</span></div>
-            </article>
-          </div>
-
-          <div class="works-flight-final-layer js-works-flight-final-layer">
-          <div class="works-flight-cards works-grid js-works-flight-cards">
-            <div class="works-flight-card-group" data-works-page="one" role="group" aria-labelledby="works-title">
-            <a
-              class="work-card js-works-flight-card work-card--link"
-              href="/works/invoice-automation.html"
+          <div
+            class="works-flight-pass-layer js-works-flight-pass-layer"
+            aria-hidden="true"
+          >
+            <article
+              class="work-card works-flight-pass-card js-works-flight-pass-card"
             >
               <div class="work-card__thumb work-card__thumb--a"></div>
               <h3>請求書処理自動化システム</h3>
@@ -713,10 +720,9 @@
                 <span class="chip">Claude API</span
                 ><span class="chip">n8n</span>
               </div>
-            </a>
-            <a
-              class="work-card js-works-flight-card work-card--link"
-              href="/works/knowledge-rag.html"
+            </article>
+            <article
+              class="work-card works-flight-pass-card js-works-flight-pass-card"
             >
               <div class="work-card__thumb work-card__thumb--b"></div>
               <h3>社内ナレッジRAGボット</h3>
@@ -725,12 +731,9 @@
                 <span class="chip">RAG</span
                 ><span class="chip">ベクトルDB</span>
               </div>
-            </a>
-            </div>
-            <div class="works-flight-card-group" data-works-page="two" role="group" aria-labelledby="works-title-secondary">
-            <a
-              class="work-card js-works-flight-card work-card--link"
-              href="/works/sns-pipeline.html"
+            </article>
+            <article
+              class="work-card works-flight-pass-card js-works-flight-pass-card"
             >
               <div class="work-card__thumb work-card__thumb--c"></div>
               <h3>SNS運用自動化パイプライン</h3>
@@ -740,10 +743,9 @@
               <div class="scene-copy__chips">
                 <span class="chip">LLM</span><span class="chip">自動化</span>
               </div>
-            </a>
-            <a
-              class="work-card js-works-flight-card work-card--link"
-              href="/works/meeting-notes-ai.html"
+            </article>
+            <article
+              class="work-card works-flight-pass-card js-works-flight-pass-card"
             >
               <div class="work-card__thumb work-card__thumb--d"></div>
               <h3>議事録・レポート自動生成AI</h3>
@@ -754,9 +756,82 @@
                 <span class="chip">音声認識</span
                 ><span class="chip">文書生成</span>
               </div>
-            </a>
-            </div>
+            </article>
           </div>
+
+          <div class="works-flight-final-layer js-works-flight-final-layer">
+            <div class="works-flight-cards works-grid js-works-flight-cards">
+              <div
+                class="works-flight-card-group"
+                data-works-page="one"
+                role="group"
+                aria-labelledby="works-title"
+              >
+                <a
+                  class="work-card js-works-flight-card work-card--link"
+                  href="/works/invoice-automation.html"
+                >
+                  <div class="work-card__thumb work-card__thumb--a"></div>
+                  <h3>請求書処理自動化システム</h3>
+                  <p>
+                    LLM+OCRで請求書データを自動抽出。月3日の作業を半日に短縮。
+                  </p>
+                  <div class="scene-copy__chips">
+                    <span class="chip">Claude API</span
+                    ><span class="chip">n8n</span>
+                  </div>
+                </a>
+                <a
+                  class="work-card js-works-flight-card work-card--link"
+                  href="/works/knowledge-rag.html"
+                >
+                  <div class="work-card__thumb work-card__thumb--b"></div>
+                  <h3>社内ナレッジRAGボット</h3>
+                  <p>
+                    散在する社内ドキュメントを横断検索できるAIチャットボット。
+                  </p>
+                  <div class="scene-copy__chips">
+                    <span class="chip">RAG</span
+                    ><span class="chip">ベクトルDB</span>
+                  </div>
+                </a>
+              </div>
+              <div
+                class="works-flight-card-group"
+                data-works-page="two"
+                role="group"
+                aria-labelledby="works-title-secondary"
+              >
+                <a
+                  class="work-card js-works-flight-card work-card--link"
+                  href="/works/sns-pipeline.html"
+                >
+                  <div class="work-card__thumb work-card__thumb--c"></div>
+                  <h3>SNS運用自動化パイプライン</h3>
+                  <p>
+                    投稿生成から予約投稿・効果分析までを自動化するワークフロー。
+                  </p>
+                  <div class="scene-copy__chips">
+                    <span class="chip">LLM</span
+                    ><span class="chip">自動化</span>
+                  </div>
+                </a>
+                <a
+                  class="work-card js-works-flight-card work-card--link"
+                  href="/works/meeting-notes-ai.html"
+                >
+                  <div class="work-card__thumb work-card__thumb--d"></div>
+                  <h3>議事録・レポート自動生成AI</h3>
+                  <p>
+                    会議音声から議事録と週次レポートを自動生成。共有まで自動化。
+                  </p>
+                  <div class="scene-copy__chips">
+                    <span class="chip">音声認識</span
+                    ><span class="chip">文書生成</span>
+                  </div>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>
