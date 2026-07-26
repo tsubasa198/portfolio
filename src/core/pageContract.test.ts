@@ -448,8 +448,9 @@ describe("システム完成から制作実績への飛行遷移", () => {
     expect(worksFlightSource).toContain("scrubber.setActive");
     expect(worksFlightSource).toContain("scrubber.destroy");
     expect(worksFlightSource).toContain("trigger.kill");
-    expect(worksFlightSource).toContain(
-      "worksFlightVideoTimeAt(\n      0,\n      mascotVideo.duration",
+    // フォーマッタの改行位置に依存しないよう、呼び出しの意図だけを検証する
+    expect(worksFlightSource).toMatch(
+      /worksFlightVideoTimeAt\(\s*0,\s*mascotVideo\.duration/,
     );
     expect(worksFlightSource).not.toContain(".play(");
   });

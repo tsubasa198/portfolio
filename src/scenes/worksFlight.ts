@@ -1,5 +1,6 @@
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { clamp01, segmentProgress } from "../core/sceneProgress";
+import { measureCardGeometry, type CardGeometry } from "./cardGeometryMeasurer";
 import { PortalVideoScrubber } from "./portalVideoScrub";
 import {
   FINAL_CARD_FLIGHTS,
@@ -27,11 +28,6 @@ const PASS_CARD_COUNT = 4;
 const VIDEO_WIDTH = 1280;
 const VIDEO_HEIGHT = 720;
 const TAKEOFF_ROTATION_DEG = -4.5;
-
-interface CardGeometry {
-  readonly centerX: number;
-  readonly centerY: number;
-}
 
 interface SubjectGeometry extends Point {
   readonly width: number;
@@ -222,21 +218,8 @@ export function initWorksFlightScene(
   let sceneGeometry!: SceneGeometry;
 
   const measure = () => {
-    const previousTransforms = finalCards.map((card) => card.style.transform);
-    finalCards.forEach((card) => {
-      card.style.transform = "none";
-    });
     const stageRect = stage.getBoundingClientRect();
-    finalCardGeometry = finalCards.map((card) => {
-      const rect = card.getBoundingClientRect();
-      return {
-        centerX: rect.left - stageRect.left + rect.width / 2,
-        centerY: rect.top - stageRect.top + rect.height / 2,
-      };
-    });
-    finalCards.forEach((card, index) => {
-      card.style.transform = previousTransforms[index];
-    });
+    finalCardGeometry = measureCardGeometry(finalCards, stage);
     finalCardRowShift = Math.max(
       0,
       (finalCardGeometry[2]?.centerY ?? 0) -
@@ -260,10 +243,7 @@ export function initWorksFlightScene(
   };
 
   try {
-    mascotVideo.currentTime = worksFlightVideoTimeAt(
-      0,
-      mascotVideo.duration,
-    );
+    mascotVideo.currentTime = worksFlightVideoTimeAt(0, mascotVideo.duration);
   } catch {
     mediaFailed = true;
     section.dataset.worksFlightMedia = "static-fallback";
@@ -324,17 +304,15 @@ export function initWorksFlightScene(
       const isWorksOne = index < 2;
       const pageOpacity = isWorksOne
         ? pageState.worksOneOpacity
-        : Math.max(
-            pageState.flightOverviewOpacity,
-            pageState.worksTwoOpacity,
-          );
+        : Math.max(pageState.flightOverviewOpacity, pageState.worksTwoOpacity);
       const opacity = state.opacity * pageOpacity;
       const pageOffsetY = isWorksOne
         ? -20 * (1 - pageState.worksOneOpacity)
         : -finalCardRowShift * pageState.worksTwoLift;
       const pageBlur = isWorksOne
         ? 8 * (1 - pageState.worksOneOpacity)
-        : 10 * (1 - pageState.worksTwoOpacity) *
+        : 10 *
+          (1 - pageState.worksTwoOpacity) *
           (1 - pageState.flightOverviewOpacity);
       card.style.opacity = opacity.toFixed(4);
       card.style.visibility = opacity <= 0.001 ? "hidden" : "visible";
@@ -424,8 +402,7 @@ export function initWorksFlightScene(
       const startScale =
         sceneGeometry.takeoffTarget.width / takeoffStartSource.width;
       scale = lerp(startScale, centralScale, takeoffProgress);
-      rotationZ =
-        TAKEOFF_ROTATION_DEG * Math.sin(Math.PI * takeoffProgress);
+      rotationZ = TAKEOFF_ROTATION_DEG * Math.sin(Math.PI * takeoffProgress);
     }
 
     if (value >= WORKS_FLIGHT_CONFIG.takeoffMotionEnd) {
@@ -486,10 +463,13 @@ export function initWorksFlightScene(
       ? "0"
       : String(videoEntrance * (1 - staticHandoff));
     landingMascot.style.opacity = String(
-      mediaFailed ? ramp(value, WORKS_FLIGHT_CONFIG.systemHoldEnd, 0.2) : staticHandoff,
+      mediaFailed
+        ? ramp(value, WORKS_FLIGHT_CONFIG.systemHoldEnd, 0.2)
+        : staticHandoff,
     );
     landingMascot.style.transform = `translateY(${(
-      3 * (1 - staticHandoff)
+      3 *
+      (1 - staticHandoff)
     ).toFixed(2)}px) scale(${(0.985 + staticHandoff * 0.015).toFixed(4)})`;
 
     const effectPoint = target;
@@ -533,14 +513,8 @@ export function initWorksFlightScene(
     );
     const effectIntensity = effectEntrance * (1 - effectExit);
     effects.style.opacity = String(effectIntensity);
-    effects.style.setProperty(
-      "--flight-intensity",
-      effectIntensity.toFixed(4),
-    );
-    effects.style.setProperty(
-      "--ray-intensity",
-      effectIntensity.toFixed(4),
-    );
+    effects.style.setProperty("--flight-intensity", effectIntensity.toFixed(4));
+    effects.style.setProperty("--ray-intensity", effectIntensity.toFixed(4));
     effects.style.setProperty(
       "--ray-scale",
       (0.6 + effectIntensity * 0.55).toFixed(4),
@@ -561,15 +535,18 @@ export function initWorksFlightScene(
     const primaryCopyOpacity = copyEntrance * pageState.worksOneOpacity;
     copy.style.opacity = String(primaryCopyOpacity);
     copy.style.transform = `translateY(${(
-      30 * (1 - primaryCopyOpacity) - 16 * (1 - pageState.worksOneOpacity)
+      30 * (1 - primaryCopyOpacity) -
+      16 * (1 - pageState.worksOneOpacity)
     ).toFixed(2)}px)`;
     copy.style.filter = `blur(${(10 * (1 - primaryCopyOpacity)).toFixed(2)}px)`;
     secondaryCopy.style.opacity = String(pageState.worksTwoOpacity);
     secondaryCopy.style.transform = `translateY(${(
-      30 * (1 - pageState.worksTwoOpacity)
+      30 *
+      (1 - pageState.worksTwoOpacity)
     ).toFixed(2)}px)`;
     secondaryCopy.style.filter = `blur(${(
-      10 * (1 - pageState.worksTwoOpacity)
+      10 *
+      (1 - pageState.worksTwoOpacity)
     ).toFixed(2)}px)`;
 
     scrubber.setProgress(progress);
