@@ -3,6 +3,10 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { sceneScrollTop } from "./core/navigationState";
+import {
+  TOUCH_STATIC_MEDIA_QUERY,
+  shouldUseStaticPresentation,
+} from "./core/staticMode";
 import { prepareArrivalImages } from "./scenes/arrivalAssetLoader";
 import { initIntroScene } from "./scenes/intro";
 import {
@@ -349,9 +353,11 @@ async function main(): Promise<void> {
   import.meta.hot?.dispose(cleanup);
 
   try {
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    // タッチ主体の端末はOSのモーション低減と同じ静的フォールバックへ合流させる
+    const reducedMotion = shouldUseStaticPresentation(
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+      window.matchMedia(TOUCH_STATIC_MEDIA_QUERY).matches,
+    );
     document.body.classList.toggle("reduced-motion", reducedMotion);
 
     // スクロール距離を進行設定と同じ場所から調整できるようCSSへ渡す。

@@ -3534,6 +3534,51 @@ main {
   will-change: auto !important;
 }
 
+/* ---------- 大画面 (幅1600px超・Studio Display級) ---------- */
+/*
+  上限幅1160px級のままだと論理2000px超のモニターで余白(暗闇)が過大になる。
+  1600px以下の表示には影響させず、大画面のみコンテンツ幅と
+  タイポグラフィを引き上げて画面密度を保つ。
+*/
+@media (min-width: 1600px) {
+  .works-flight-cards {
+    width: min(72vw, 1600px);
+    /* 高さのあるモニターでは下の空洞が目立つため、垂直センタリングへ寄せる */
+    top: clamp(238px, 22svh, 340px);
+  }
+
+  .section__inner {
+    max-width: 1440px;
+  }
+
+  .works-flight-cards .work-card {
+    min-height: clamp(340px, 51svh, 560px);
+  }
+
+  .macbook {
+    width: min(
+      1000px,
+      calc(100vw - var(--studio-split) - 1.5vw - clamp(16px, 3vw, 40px))
+    );
+  }
+
+  .scene-copy__title {
+    font-size: clamp(56px, 3.4vw, 72px);
+  }
+
+  .scene-studio .scene-copy__title {
+    font-size: clamp(40px, 2.4vw, 52px);
+  }
+
+  .works-flight-copy__title {
+    font-size: clamp(46px, 2.6vw, 58px);
+  }
+
+  .section__title {
+    font-size: clamp(44px, 2.5vw, 54px);
+  }
+}
+
 /* ---------- モーション低減 / 初期化失敗時の静的フォールバック ---------- */
 body.reduced-motion .loading__text,
 body.no-motion .loading__text,
