@@ -84,6 +84,15 @@ describe("ページ共通UI", () => {
     // 復元されるとスクラブ演出の途中から始まって固まって見える
     expect(mainSource).toContain('window.history.scrollRestoration = "manual"');
     expect(mainSource).toContain("applyInitialScroll");
+    // ScrollTriggerは登録時点のscrollRestorationを取り込み後で書き戻すため、
+    // manualへの切り替えはプラグイン登録より前に済ませる必要がある
+    expect(
+      mainSource.indexOf('window.history.scrollRestoration = "manual"'),
+    ).toBeLessThan(mainSource.indexOf("gsap.registerPlugin(ScrollTrigger)"));
+    // リロード時の先頭戻しはアセット読込を待たずに行う(ブラウザ復元との競合回避)
+    expect(mainSource.indexOf("applyEarlyTopReset()")).toBeLessThan(
+      mainSource.indexOf("await Promise.all"),
+    );
   });
 
   it("静的表示でもStudioをヒアリングシーンとして識別できる", () => {

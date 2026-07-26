@@ -34,6 +34,13 @@ import {
 } from "./ui/chrome";
 import { createVeil, type Veil } from "./ui/veil";
 
+// リロード時にブラウザが前回のスクロール位置を復元しないようにする。
+// ScrollTriggerは登録時点のscrollRestorationを取り込み後で書き戻すため、
+// プラグイン登録より前にmanualへ切り替えておく必要がある。
+if ("scrollRestoration" in window.history) {
+  window.history.scrollRestoration = "manual";
+}
+
 gsap.registerPlugin(ScrollTrigger);
 
 interface SmoothScrollController {
@@ -284,25 +291,44 @@ function initStageDirector(
  *   出所にするので、着地点が一致する。
  * - それ以外(ハッシュなし/リロード)はファーストビューの先頭から始める。
  */
-function applyInitialScroll(reducedMotion: boolean): void {
-  const hash = window.location.hash;
-  const scrollTop = (top: number) => window.scrollTo(0, top);
-  const navigationType = (
+function currentNavigationType(): string | undefined {
+  return (
     performance.getEntriesByType("navigation")[0] as
       PerformanceNavigationTiming | undefined
   )?.type;
+}
 
-  if (initialScrollModeFor(navigationType, hash) === "top") {
-    if (hash) {
-      // リロード時はハッシュを消し、以後のリロードやブラウザのハッシュ
-      // スクロールが前回のセクションへ引き戻さないようにする
-      window.history.replaceState(
-        null,
-        "",
-        window.location.pathname + window.location.search,
-      );
-    }
-    scrollTop(0);
+/** 先頭から始める。ハッシュも消して以後のリロードで引き戻されないようにする。 */
+function resetToFirstView(): void {
+  if (window.location.hash) {
+    window.history.replaceState(
+      null,
+      "",
+      window.location.pathname + window.location.search,
+    );
+  }
+  window.scrollTo(0, 0);
+}
+
+/**
+ * リロード時の先頭戻しはアセット読込を待たず即座に行う。
+ * 遅延させるとブラウザのスクロール復元やハッシュスクロールと競合し、
+ * 読み込みの遅い環境で前回のセクションへ引き戻されることがある。
+ */
+function applyEarlyTopReset(): void {
+  const mode = initialScrollModeFor(
+    currentNavigationType(),
+    window.location.hash,
+  );
+  if (mode === "top") resetToFirstView();
+}
+
+function applyInitialScroll(reducedMotion: boolean): void {
+  const hash = window.location.hash;
+  const scrollTop = (top: number) => window.scrollTo(0, top);
+
+  if (initialScrollModeFor(currentNavigationType(), hash) === "top") {
+    resetToFirstView();
     return;
   }
   const target = document.getElementById(hash.slice(1));
@@ -333,11 +359,7 @@ function applyInitialScroll(reducedMotion: boolean): void {
 }
 
 async function main(): Promise<void> {
-  // リロード時にブラウザが前回のスクロール位置を復元しないようにする。
-  // 復元されると、途中から始まってスクラブ演出の途中で固まって見える。
-  if ("scrollRestoration" in window.history) {
-    window.history.scrollRestoration = "manual";
-  }
+  applyEarlyTopReset();
 
   const cleanups: Array<() => void> = [];
   let cleanupRegistered = false;
