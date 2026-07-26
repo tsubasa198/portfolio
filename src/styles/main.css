@@ -2522,10 +2522,10 @@ main {
   }
 }
 
+/* brightnessを動かすとbackdrop-filterのブラーが毎フレーム再計算されるため、transformのみに絞る */
 @keyframes hero-detail-panel-float {
   50% {
     transform: translateY(-7px) rotate(0.8deg);
-    filter: brightness(1.12);
   }
 }
 
