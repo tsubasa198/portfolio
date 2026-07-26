@@ -2,6 +2,7 @@ import "./styles/main.css";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
+import { initialScrollModeFor } from "./core/initialScroll";
 import { sceneScrollTop } from "./core/navigationState";
 import {
   TOUCH_STATIC_MEDIA_QUERY,
@@ -286,8 +287,21 @@ function initStageDirector(
 function applyInitialScroll(reducedMotion: boolean): void {
   const hash = window.location.hash;
   const scrollTop = (top: number) => window.scrollTo(0, top);
+  const navigationType = (
+    performance.getEntriesByType("navigation")[0] as
+      PerformanceNavigationTiming | undefined
+  )?.type;
 
-  if (!hash || hash === "#hero" || hash === "#") {
+  if (initialScrollModeFor(navigationType, hash) === "top") {
+    if (hash) {
+      // リロード時はハッシュを消し、以後のリロードやブラウザのハッシュ
+      // スクロールが前回のセクションへ引き戻さないようにする
+      window.history.replaceState(
+        null,
+        "",
+        window.location.pathname + window.location.search,
+      );
+    }
     scrollTop(0);
     return;
   }
